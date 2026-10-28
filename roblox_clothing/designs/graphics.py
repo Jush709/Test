@@ -403,6 +403,196 @@ def chrome_star():
     return _done(img)
 
 
+def satin_bow():
+    """Big glossy coquette bow with long ribbon tails."""
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    pink, dark, light = fx.rgb("#FF8FB8"), fx.rgb("#E0558C"), fx.rgb("#FFD1E3")
+    c = 512
+    for sgn in (-1, 1):
+        tail = [(c - sgn * 30, 520), (c + sgn * 60, 520), (c + sgn * 250, 900), (c + sgn * 170, 860),
+                (c + sgn * 120, 960)]
+        d.polygon(tail, fill=fx.rgba(INK))
+        inner = [(c + sgn * 0, 540), (c + sgn * 50, 540), (c + sgn * 218, 872), (c + sgn * 168, 840),
+                 (c + sgn * 124, 920)]
+        d.polygon(inner, fill=fx.rgba(dark))
+    for sgn in (-1, 1):
+        loop = [(c, 470), (c + sgn * 150, 250), (c + sgn * 360, 220), (c + sgn * 440, 380),
+                (c + sgn * 400, 600), (c + sgn * 220, 640), (c, 560)]
+        d.polygon(loop, fill=fx.rgba(INK))
+        d.line(loop + [loop[0]], fill=fx.rgba(INK), width=36, joint="curve")
+        fill = [(c, 482), (c + sgn * 152, 272), (c + sgn * 344, 246), (c + sgn * 414, 384),
+                (c + sgn * 380, 580), (c + sgn * 216, 616), (c, 548)]
+        d.polygon(fill, fill=fx.rgba(pink))
+        d.polygon([(c, 490), (c + sgn * 170, 380), (c + sgn * 190, 560), (c, 540)], fill=fx.rgba(dark))
+        d.line([(c + sgn * 190, 300), (c + sgn * 330, 280)], fill=fx.rgba(light), width=26)
+    d.rounded_rectangle([c - 70, 420, c + 70, 600], radius=40, fill=fx.rgba(INK))
+    d.rounded_rectangle([c - 50, 440, c + 50, 580], radius=30, fill=fx.rgba(pink))
+    d.line([(c - 20, 460), (c + 20, 460)], fill=fx.rgba(light), width=16)
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def strawberry():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    body = [(512, 960), (330, 760), (220, 520), (250, 330), (400, 280), (512, 300), (624, 280), (774, 330),
+            (804, 520), (694, 760)]
+    d.polygon(body, fill=fx.rgba(INK))
+    d.line(body + [body[0]], fill=fx.rgba(INK), width=40, joint="curve")
+    m = Image.new("L", (S, S))
+    ImageDraw.Draw(m).polygon(body, fill=255)
+    m = m.filter(ImageFilter.MinFilter(15))
+    berry = _masked(_vgrad((S, S), ["#FF6B7A", "#F0304E", "#C81E3C"]), m)
+    bd = ImageDraw.Draw(berry)
+    for y in range(380, 900, 76):
+        for i, x in enumerate(range(260, 780, 76)):
+            xx = x + (38 if (y // 76) % 2 else 0)
+            bd.ellipse([xx - 9, y - 14, xx + 9, y + 14], fill=fx.rgba("#FFE38A"))
+    berry.putalpha(Image.fromarray(np.minimum(np.asarray(berry.getchannel("A")), np.asarray(m))))
+    lay.alpha_composite(berry)
+    d = ImageDraw.Draw(lay)
+    d.ellipse([300, 360, 380, 470], fill=(255, 255, 255, 120))
+    leaves = [(512, 330), (350, 250), (300, 300), (420, 190), (470, 110), (512, 190), (554, 110),
+              (604, 190), (724, 300), (674, 250)]
+    d.polygon(leaves, fill=fx.rgba(INK))
+    d.line(leaves + [leaves[0]], fill=fx.rgba(INK), width=30, joint="curve")
+    lm = Image.new("L", (S, S))
+    ImageDraw.Draw(lm).polygon(leaves, fill=255)
+    lm = lm.filter(ImageFilter.MinFilter(11))
+    lay.alpha_composite(_masked(_vgrad((S, S), ["#8BE07A", "#4FAF4A"]), lm))
+    d = ImageDraw.Draw(lay)
+    d.line([(512, 190), (530, 70)], fill=fx.rgba(INK), width=40)
+    d.line([(512, 190), (530, 78)], fill=fx.rgba("#4FAF4A"), width=20)
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def _ellipse_layer(cx, cy, rx, ry, angle, fill, outline=INK, width=34):
+    """A rotated, outlined ellipse on its own full-size layer."""
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    d.ellipse([cx - rx - width / 2, cy - ry - width / 2, cx + rx + width / 2, cy + ry + width / 2],
+              fill=fx.rgba(outline))
+    d.ellipse([cx - rx + width / 2, cy - ry + width / 2, cx + rx - width / 2, cy + ry - width / 2],
+              fill=fx.rgba(fill) if not isinstance(fill, Image.Image) else None)
+    if isinstance(fill, Image.Image):
+        m = Image.new("L", (S, S))
+        ImageDraw.Draw(m).ellipse([cx - rx + width / 2, cy - ry + width / 2, cx + rx - width / 2,
+                                   cy + ry - width / 2], fill=255)
+        lay.alpha_composite(_masked(fill, m))
+    return lay.rotate(angle, center=(cx, cy), resample=Image.BICUBIC)
+
+
+def daisy():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    c = 512
+    for k in range(10):
+        petal = Image.new("RGBA", (S, S))
+        pd = ImageDraw.Draw(petal)
+        pd.ellipse([c - 104, c - 470, c + 104, c - 40], fill=fx.rgba(INK))
+        pd.ellipse([c - 86, c - 452, c + 86, c - 56], fill=fx.rgba("#FFFFFF"))
+        pd.line([(c, c - 400), (c, c - 140)], fill=fx.rgba("#E3E0EE"), width=12)
+        lay.alpha_composite(petal.rotate(k * 36, center=(c, c), resample=Image.BICUBIC))
+    d = ImageDraw.Draw(lay)
+    d.ellipse([c - 175, c - 175, c + 175, c + 175], fill=fx.rgba(INK))
+    m = Image.new("L", (S, S))
+    ImageDraw.Draw(m).ellipse([c - 158, c - 158, c + 158, c + 158], fill=255)
+    lay.alpha_composite(_masked(_vgrad((S, S), ["#FFE36E", "#FFC23A", "#FF9F1C"]), m))
+    d = ImageDraw.Draw(lay)
+    d.ellipse([c - 100, c - 110, c - 30, c - 50], fill=(255, 255, 255, 150))
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def butterfly():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    c = 512
+    grad = _vgrad((S, S), ["#B79BFF", "#8FB8FF", "#FF9BD2", "#FFC2E2"])
+    for sgn in (-1, 1):
+        lay.alpha_composite(_ellipse_layer(c + sgn * 200, 560, 150, 190, sgn * 25, grad))
+        lay.alpha_composite(_ellipse_layer(c + sgn * 220, 320, 210, 250, sgn * -35, grad))
+    d = ImageDraw.Draw(lay)
+    for sgn in (-1, 1):
+        for x, y, r in ((c + sgn * 300, 250, 50), (c + sgn * 210, 400, 28), (c + sgn * 230, 600, 40)):
+            d.ellipse([x - r, y - r, x + r, y + r], fill=(255, 255, 255, 190))
+    d.rounded_rectangle([c - 36, 250, c + 36, 760], radius=36, fill=fx.rgba(INK))
+    d.rounded_rectangle([c - 20, 266, c + 20, 744], radius=20, fill=fx.rgba("#6B4BA8"))
+    for sgn in (-1, 1):
+        d.line([(c, 262), (c + sgn * 60, 160), (c + sgn * 110, 110)], fill=fx.rgba(INK), width=14, joint="curve")
+        d.ellipse([c + sgn * 110 - 20, 90, c + sgn * 110 + 20, 130], fill=fx.rgba(INK))
+    for x, y, sz in ((150, 880, 40), (870, 860, 30), (880, 150, 26)):
+        sparkle(d, x, y, sz + 8, INK)
+        sparkle(d, x, y, sz, "#FFF6B0")
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def angel_heart():
+    """Glossy heart with feathered angel wings and a halo."""
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    c = 512
+    for sgn in (-1, 1):
+        for i, (dx, dy, rx, ry, ang) in enumerate(((300, 430, 170, 70, 25), (290, 520, 150, 60, 5),
+                                                    (270, 600, 120, 50, -15))):
+            lay.alpha_composite(_ellipse_layer(c + sgn * dx, dy, rx, ry, sgn * ang, "#FFFFFF", width=28))
+    pts = fx._heart_pts(c, 560, 260)
+    d = ImageDraw.Draw(lay)
+    d.polygon(pts, fill=fx.rgba(INK))
+    d.line(pts + [pts[0]], fill=fx.rgba(INK), width=40, joint="curve")
+    m = Image.new("L", (S, S))
+    ImageDraw.Draw(m).polygon(fx._heart_pts(c, 560, 240), fill=255)
+    lay.alpha_composite(_masked(_vgrad((S, S), ["#FF9AC6", "#FF4F8B", "#D81E5B"]), m))
+    d = ImageDraw.Draw(lay)
+    d.ellipse([c - 160, 400, c - 80, 470], fill=(255, 255, 255, 170))
+    d.ellipse([c - 160, 180, c + 160, 260], outline=fx.rgba(INK), width=40)
+    d.ellipse([c - 150, 190, c + 150, 250], outline=fx.rgba("#FFD86B"), width=20)
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def mushroom():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    c = 512
+    stem = [(c - 130, 430), (c + 130, 430), (c + 160, 900), (c - 160, 900)]
+    d.polygon(stem, fill=fx.rgba(INK))
+    d.line(stem + [stem[0]], fill=fx.rgba(INK), width=40, joint="curve")
+    d.polygon([(c - 112, 444), (c + 112, 444), (c + 142, 882), (c - 142, 882)], fill=fx.rgba("#FFF4E2"))
+    d.chord([c - 430, 110, c + 430, 790], 180, 360, fill=fx.rgba(INK))
+    d.rounded_rectangle([c - 400, 430, c + 400, 500], radius=34, fill=fx.rgba(INK))
+    d.rounded_rectangle([c - 380, 446, c + 380, 484], radius=18, fill=fx.rgba("#F2D9C4"))
+    m = Image.new("L", (S, S))
+    ImageDraw.Draw(m).chord([c - 410, 130, c + 410, 770], 180, 360, fill=255)
+    cap = _masked(_vgrad((S, S), ["#FF6B6B", "#E8384F", "#C2203A"]), m)
+    cd = ImageDraw.Draw(cap)
+    for x, y, r in ((c - 210, 300, 62), (c + 40, 210, 52), (c + 240, 310, 58), (c - 40, 360, 40),
+                    (c + 330, 410, 28), (c - 320, 410, 30)):
+        cd.ellipse([x - r, y - r, x + r, y + r], fill=fx.rgba("#FFF4E2"))
+    cap.putalpha(Image.fromarray(np.minimum(np.asarray(cap.getchannel("A")), np.asarray(m))))
+    lay.alpha_composite(cap)
+    d = ImageDraw.Draw(lay)
+    for ex in (c - 56, c + 56):
+        d.ellipse([ex - 20, 620, ex + 20, 664], fill=fx.rgba(INK))
+        d.ellipse([ex - 10, 628, ex, 640], fill=(255, 255, 255, 255))
+    d.arc([c - 34, 650, c + 34, 706], 20, 160, fill=fx.rgba(INK), width=10)
+    for bx in (c - 100, c + 100):
+        d.ellipse([bx - 28, 676, bx + 28, 702], fill=fx.rgba("#FF9DB5", 220))
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
 GRAPHICS = {
     "retro_sunset": retro_sunset,
     "pixel_heart": pixel_heart,
@@ -413,4 +603,10 @@ GRAPHICS = {
     "boba": boba,
     "ringed_planet": ringed_planet,
     "chrome_star": chrome_star,
+    "satin_bow": satin_bow,
+    "strawberry": strawberry,
+    "daisy": daisy,
+    "butterfly": butterfly,
+    "angel_heart": angel_heart,
+    "mushroom": mushroom,
 }

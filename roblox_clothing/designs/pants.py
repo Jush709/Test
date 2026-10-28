@@ -73,12 +73,66 @@ def rip(img, box, thread=(236, 232, 222), seed=0):
                fill=fx.rgba(thread, 235))
 
 
-def jeans(p, brand, baggy=0.8, rips=False, shoes=None):
+def legs_and_shoes(g, p, skirt_end=0):
+    """Legwear and shoes for skirts and shorts, chosen by the colourway."""
+    white = (252, 252, 252)
+    leg = p.get("legwear")
+    shoe = p.get("shoes", "mary_janes")
+    shoe_h = {"chunky": 20, "sneakers": 16, "platform_boots": 34}.get(shoe, 12)
+    if leg == "knee_socks":
+        c.socks(g, p.get("socks", white), 76, 114, stripe=p.get("sock_stripe"))
+    elif leg == "crew_socks":
+        c.socks(g, p.get("socks", white), 98, 112, stripe=p.get("sock_stripe"))
+    elif leg == "tights":
+        c.tights(g, p.get("tights", (22, 22, 26)), p.get("tights_opacity", 0.6), y0=skirt_end)
+    elif leg == "thigh_highs":
+        c.thigh_highs(g, p.get("socks", white), top=p.get("sock_top", 56), band=p.get("sock_band"),
+                      bow=p.get("sock_bow"))
+    elif leg == "leg_warmers":
+        c.leg_warmers(g, p.get("warmers", white), 70, 128 - shoe_h + 4)
+    elif leg == "lace_socks":
+        c.lace_socks(g, p.get("socks", white), 102, 116)
+    color = p.get("shoe_color", (24, 22, 26))
+    if shoe == "mary_janes":
+        c.mary_janes(g, color, bow=p.get("shoe_bow"))
+    elif shoe == "loafers":
+        c.loafers(g, color)
+    elif shoe == "ballet":
+        c.ballet_flats(g, color, bow=p.get("shoe_bow"))
+    elif shoe == "platform_boots":
+        c.platform_boots(g, color)
+    elif shoe == "knee_boots":
+        c.knee_boots(g, color, top=p.get("boot_top", 66))
+    elif shoe == "chunky":
+        c.chunky_sneakers(g, **p.get("sneakers", {}))
+    elif shoe == "sneakers":
+        c.sneakers(g, **p.get("sneakers", {}))
+
+
+def _belt(g, p, y):
+    """Optional belt from the colourway: studded, heart buckle or a draped chain."""
+    kind = p.get("belt")
+    if not kind:
+        return False
+    F = g.torso.faces["F"]
+    if kind == "studded":
+        c.belt(g, y, 7, (20, 20, 22), "square", (210, 210, 216), studs=(214, 214, 220))
+    elif kind == "heart":
+        c.belt(g, y, 6, p.get("belt_color", (236, 120, 160)), "heart", (226, 226, 232))
+    elif kind == "chain":
+        c.belt(g, y, 6, p.get("belt_color", (24, 22, 24)), "double", (210, 210, 216))
+        dt.chain(F, [(14, y + 7), (36, y + 15), (64, y + 18), (92, y + 15), (114, y + 7)], (220, 220, 226))
+    else:
+        c.belt(g, y, 6, p.get("belt_color", (60, 40, 30)), "square", (220, 190, 120))
+    return True
+
+
+def jeans(p, brand, baggy=0.8, rips=False, shoes=None, top=96, flared=False):
     denim_c = p["denim"]
     thread = p.get("thread", (214, 150, 70))
     tex = c.tex_denim(denim_c)
     hem = 128 - (SHOE_H if shoes else 0)
-    g = c.pants(tex, top=96)
+    g = c.pants(tex, top=top)
     T = g.torso
     F = T.faces["F"]
     ink = fx.tone(denim_c, 0.5)
@@ -98,28 +152,34 @@ def jeans(p, brand, baggy=0.8, rips=False, shoes=None):
             ld.line([(ix + sgn * 3, 4 + i * 4), (ix + sgn * (18 + i * 3), 2 + i * 7)],
                     fill=(255, 255, 255, 90), width=1)
         over(img, fx.clip_to(lay.filter(ImageFilter.GaussianBlur(0.8)), img))
-        # back pockets with a stitched arc
+        # back pockets with a stitched arc (or a heart)
         B = limb.faces["B"]
         pk = [(14, 8), (50, 8), (50, 32), (32, 38), (14, 32)]
         lay = dt.textured_polygon(B.size, pk, tex(B.size, 4))
         ld = ImageDraw.Draw(lay)
         ld.line(pk + [pk[0]], fill=fx.rgba(ink))
         dt.stitch(ld, [(16, 10), (16, 31), (32, 36), (48, 31), (48, 10)], fx.rgba(thread), 2, 2)
-        dt.stitch(ld, [(18, 22), (32, 16), (46, 22)], fx.rgba(thread), 2, 2)
+        if p.get("heart_pockets"):
+            heart = dt.heart_points(32, 22, 8, 24)
+            dt.stitch(ld, heart + [heart[0]], fx.rgba(p["heart_pockets"]), 2, 1)
+        else:
+            dt.stitch(ld, [(18, 22), (32, 16), (46, 22)], fx.rgba(thread), 2, 2)
         dt.place(B, lay, (0, 1, 0.8, 0.45))
         dd = ImageDraw.Draw(B)
         dd.line([(0, 0), (64, 0)], fill=fx.rgba(ink))
     side_seams(g, denim_c, 0.55)
-    waistband(g, tex, ink=ink, thread=thread)
+    waistband(g, tex, y0=top, ink=ink, thread=thread)
     d = ImageDraw.Draw(F)
-    dt.stitch(d, [(70, 108), (70, 122), (64, 127)], fx.rgba(thread), 2, 2)
-    d.line([(64, 106), (64, 128)], fill=fx.rgba(ink))
+    y = top + 10
+    dt.stitch(d, [(70, y + 2), (70, 122), (64, 127)], fx.rgba(thread), 2, 2)
+    d.line([(64, y), (64, 128)], fill=fx.rgba(ink))
     for side in (0, 1):
-        pts = [(26, 106), (18, 112), (12, 127)]
+        pts = [(26, y), (18, y + 6), (12, 127)]
         pts = c.mirror_pts(pts) if side else pts
         d.line(pts, fill=fx.rgba(ink), width=1)
-        dt.stitch(d, [(x + (2 if side else -2), y) for x, y in pts], fx.rgba(thread), 2, 2)
-    dt.stitch(d, [(92, 108), (102, 108), (102, 116)], fx.rgba(thread), 2, 1)
+        dt.stitch(d, [(x + (2 if side else -2), yy) for x, yy in pts], fx.rgba(thread), 2, 2)
+    if y + 10 < 128:
+        dt.stitch(d, [(92, y + 2), (102, y + 2), (102, min(127, y + 10))], fx.rgba(thread), 2, 1)
     if rips:
         for limb in g.limbs:
             rip(limb.faces["F"], (16, 60, 46, 70), seed=limb.name)
@@ -127,8 +187,11 @@ def jeans(p, brand, baggy=0.8, rips=False, shoes=None):
     for limb in g.limbs:
         for f in limb.sides:
             dt.stitch(ImageDraw.Draw(limb.faces[f]), [(0, hem - 4), (64, hem - 4)], fx.rgba(thread), 2, 2)
-    c.finish(g, 0.85, baggy=baggy, hem=hem)
-    dt.button(F, 64, 101, 2.4, p.get("button", (176, 116, 60)))
+    if flared:
+        c.flare(g, 80, hem, 1.1)
+    c.finish(g, 0.9, baggy=baggy, hem=hem, fit="fitted" if flared or baggy < 0.5 else "relaxed")
+    if not _belt(g, p, top + 1):
+        dt.button(F, 64, top + 5, 2.4, p.get("button", (176, 116, 60)))
     if shoes:
         c.sneakers(g, **shoes)
     return g
@@ -174,7 +237,7 @@ def cargo(p, brand, shoes=None, straps=False):
             for img in c.sides(limb):
                 dt.rib_band(img, hem - 10, hem, cuff, period=2)
     c.finish(g, 0.85, baggy=0.9 if cuff else 0.6, hem=hem - (10 if cuff else 0))
-    if p.get("belt"):
+    if p.get("belt") and not isinstance(p["belt"], str):
         for f in g.torso.sides:
             img = g.torso.faces[f]
             lay = Image.new("RGBA", img.size)
@@ -186,7 +249,7 @@ def cargo(p, brand, shoes=None, straps=False):
                              outline=fx.rgba((110, 110, 118)))
         ld.rectangle([60, 99, 68, 103], fill=fx.rgba((120, 120, 128)))
         dt.place(F, lay, (0, 1, 0.6, 0.5))
-    else:
+    elif not _belt(g, p, 98):
         dt.button(F, 64, 101, 2.2, (60, 60, 64))
     if straps:
         out = g.right.faces[c.OUTER["right"]]
@@ -230,79 +293,46 @@ def joggers(p, brand, shoes=None):
     return g
 
 
-def track_pants(p, brand, shoes=None):
-    base, stripe = p["base"], p["stripe"]
-    tex = c.tex_smooth(base, 0.01, 0.04)
-    hem = 128 - (SHOE_H if shoes else 0)
-    g = c.pants(tex, top=94)
-    # two stripes wrapping the corner where the front meets the outer side, from hip to ankle
-    def stripes_at(part, seams, y0, y1):
-        lay = Image.new("RGBA", (part.strip_width, 128))
-        d = ImageDraw.Draw(lay)
-        for s in seams:
-            for x in (s - 6, s + 1):
-                d.rectangle([x, y0, x + 3, y1 - 1], fill=fx.rgba(stripe))
-        part.over_strip(lay)
-
-    stripes_at(g.torso, (g.torso.offset("F"), g.torso.offset("L")), 104, 128)
-    stripes_at(g.right, (g.right.offset("F"),), 0, hem)
-    stripes_at(g.left, (g.left.offset("L"),), 0, hem)
-    c.finish(g, 0.75, baggy=0.5, hem=hem)
-    for limb in g.limbs:
-        out = limb.faces[c.OUTER[limb.name]]
-        c.sheen(out, 6, 14, 0.12, 3)
-        dt.zipper(out, 32, hem - 22, hem - 1, base, pull_y=hem - 20)
-    drawstring_waist(g, fx.tone(base, 0.9), 94, 10, string=stripe)
-    if shoes:
-        c.sneakers(g, **shoes)
-    return g
-
-
-def suit_trousers(p, brand):
+def wide_trousers(p, brand):
+    """High-waisted wide-leg trousers with front pleats, a pressed crease, thin belt and loafers."""
     base = p["base"]
-    tex = c.tex_smooth(base, 0.012, 0.04)
+    tex = c.tex_smooth(base, 0.012, 0.05) if not p.get("linen") else c.tex_fabric(base, 0.02, 0.8)
     hem = 116
-    g = c.pants(tex, top=96)
-    ink = fx.tone(base, 0.5)
+    g = c.pants(tex, top=94)
+    ink = fx.tone(base, 0.55)
     F = g.torso.faces["F"]
     d = ImageDraw.Draw(F)
-    d.line([(64, 104), (64, 128)], fill=fx.rgba(ink))
+    d.line([(64, 102), (64, 128)], fill=fx.rgba(ink))
     for side in (0, 1):
-        pts = [(26, 104), (16, 127)]
+        pts = [(28, 102), (16, 127)]
         d.line(c.mirror_pts(pts) if side else pts, fill=fx.rgba(ink), width=1)
     for limb in g.limbs:
         B = limb.faces["B"]
-        dd = ImageDraw.Draw(B)
-        dd.line([(16, 14), (48, 14)], fill=fx.rgba(ink), width=2)
+        ImageDraw.Draw(B).line([(16, 14), (48, 14)], fill=fx.rgba(ink), width=2)
+        Fl = limb.faces["F"]
+        dd = ImageDraw.Draw(Fl)
+        for x in (24, 40):
+            dd.line([(x, 0), (x + 1, 20)], fill=fx.rgba(ink, 170))
         for f in "FB":
             img = limb.faces[f]
             lay = Image.new("RGBA", img.size)
-            ImageDraw.Draw(lay).line([(32, 0), (32, 128)], fill=(255, 255, 255, 60), width=2)
+            ImageDraw.Draw(lay).line([(32, 0), (32, 128)], fill=(255, 255, 255, 70), width=2)
             over(img, fx.clip_to(lay.filter(ImageFilter.GaussianBlur(1)), img))
             ImageDraw.Draw(img).line([(33, 0), (33, 128)], fill=fx.rgba(ink, 90))
     side_seams(g, base, 0.6)
-    c.finish(g, 0.7, baggy=0.3, hem=hem, folds=0.8)
-    belt = p.get("belt", (28, 22, 20))
-    for f in g.torso.sides:
-        img = g.torso.faces[f]
-        lay = Image.new("RGBA", img.size)
-        ld = ImageDraw.Draw(lay)
-        ld.rectangle([0, 96, img.width, 103], fill=fx.rgba(belt))
-        ld.line([(0, 97), (img.width, 97)], fill=fx.rgba(fx.tone(belt, 1.5), 120))
-        dt.place(img, lay, (0, 1, 0.6, 0.5))
-    lay = Image.new("RGBA", F.size)
-    ld = ImageDraw.Draw(lay)
-    ld.rounded_rectangle([58, 95, 70, 104], radius=1, outline=fx.rgba(p.get("buckle", (210, 190, 130))), width=2)
-    dt.place(F, lay, (0, 1, 0.6, 0.5))
-    c.dress_shoes(g, p.get("shoes", (24, 20, 20)), 128 - hem)
+    c.flare(g, 50, hem, 0.7)
+    c.finish(g, 0.75, baggy=0.4, hem=hem, folds=0.8)
+    c.belt(g, 96, 5, p.get("belt", (60, 38, 28)), "square", p.get("buckle", (222, 194, 120)))
+    c.loafers(g, p.get("shoes", (40, 26, 20)))
     return g
 
 
 def pleated_skirt(p, brand):
-    tex = c.tex_plaid(p["sett"])
-    length = 46
+    """Pleated mini skirt (plaid or solid) with legwear and shoes chosen by the colourway."""
+    tex = c.tex_plaid(p["sett"]) if p.get("sett") else c.tex_fabric(p["base"], 0.01)
+    length = p.get("length", 46)
     g = c.pants(tex, top=100, hem=length)
-    period = 8
+    period = p.get("pleat", 8)
 
     def pleats(img, y0, y1):
         w, h = img.size
@@ -322,43 +352,123 @@ def pleated_skirt(p, brand):
         img = g.torso.faces[f]
         img.paste(fx.apply_shade(img, pleats(img, 110, 128), 0.7), (0, 0))
     c.finish(g, 0.6, hem=length, folds=0.5)
-    band = p.get("band", fx.tone(p["sett"][0][0], 0.7))
+    default_band = fx.tone(p["sett"][0][0], 0.7) if p.get("sett") else fx.tone(p["base"], 0.95)
+    band = p.get("band", default_band)
     for img in c.sides(g.torso):
         lay = Image.new("RGBA", img.size)
         ImageDraw.Draw(lay).rectangle([0, 100, img.width, 109], fill=fx.rgba(band))
         dt.place(img, lay, (0, 1, 1.0, 0.5))
-    dt.button(g.torso.faces["F"], 96, 104, 2.0, p.get("button", (230, 210, 140)), holes=False)
+    if p.get("button", True):
+        dt.button(g.torso.faces["F"], 96, 104, 2.0, p.get("button_color", (230, 210, 140)), holes=False)
     for limb in g.limbs:
         for img in c.sides(limb):
             ImageDraw.Draw(img).line([(0, length - 1), (img.width, length - 1)], fill=fx.rgba((0, 0, 0), 90))
-    c.socks(g, p.get("socks", (250, 250, 250)), 76, 114, stripe=p.get("sock_stripe"))
-    shoe = p.get("shoes", (24, 22, 26))
-    c.dress_shoes(g, shoe, 14)
-    for limb in g.limbs:
-        d = ImageDraw.Draw(limb.faces["F"])
-        d.line([(16, 116), (48, 116)], fill=fx.rgba(fx.tone(shoe, 0.4)), width=2)
-        dt.button(limb.faces["F"], 46, 116, 1.4, (200, 200, 205), holes=False)
+    legs_and_shoes(g, p, length)
     return g
 
 
-def basketball_shorts(p, brand):
-    base, panel = p["base"], p["panel"]
-    tex = c.tex_mesh(base)
-    length = 58
-    g = c.pants(tex, top=94, hem=length)
+def ruffle_skirt(p, brand):
+    """Tiered ruffle mini skirt with a little bow at the waist."""
+    base = p["base"]
+    tex = c.fabric_tex(p)
+    g = c.pants(tex, top=100, hem=24)
+    c.finish(g, 0.6, hem=24, folds=0.4)
+    for img in c.sides(g.torso):
+        dt.rib_band(img, 100, 106, fx.tone(base, 0.95), period=2)
     for limb in g.limbs:
-        out = limb.faces[c.OUTER[limb.name]]
-        lay = c.tex_mesh(panel)(out.size)
-        lay.putalpha(c.mask_from(out.size, lambda d: d.rectangle([18, 0, 46, length], fill=255)))
-        over(out, lay)
+        for img in c.sides(limb):
+            dt.ruffle(img, 20, 44, tex(img.size, 3), base, wave=10, amp=1.8)
+            if p.get("lace"):
+                dt.lace_band(img, 42, 49, p["lace"], scallop=6)
+    dt.bow(g.torso.faces["F"], 94, 105, 12, p.get("bow", fx.tone(base, 0.85)), tails=0.9)
+    legs_and_shoes(g, p, 46)
+    return g
+
+
+def denim_skirt(p, brand):
+    """Denim mini skirt with a frayed hem, worn with tall boots."""
+    denim_c = p["denim"]
+    thread = p.get("thread", (214, 150, 70))
+    tex = c.tex_denim(denim_c)
+    length = 42
+    g = c.pants(tex, top=98, hem=length)
+    ink = fx.tone(denim_c, 0.5)
+    for limb in g.limbs:
+        c.fade(limb.faces["F"], [(8, 0, 56, 40)], p.get("wash", 0.25), 9)
+        B = limb.faces["B"]
+        pk = [(16, 4), (48, 4), (48, 22), (32, 27), (16, 22)]
+        lay = dt.textured_polygon(B.size, pk, tex(B.size, 4))
+        ld = ImageDraw.Draw(lay)
+        ld.line(pk + [pk[0]], fill=fx.rgba(ink))
+        dt.stitch(ld, [(18, 6), (18, 21), (32, 25), (46, 21), (46, 6)], fx.rgba(thread), 2, 2)
+        dt.place(B, lay, (0, 1, 0.8, 0.45))
         for img in c.sides(limb):
             d = ImageDraw.Draw(img)
-            d.rectangle([0, length - 6, img.width, length], fill=fx.rgba(panel))
-    dt.text(g.left.faces["F"], brand, (30, 40), 7, p.get("print", panel), style="black", spacing=1)
-    c.finish(g, 0.65, hem=length)
-    drawstring_waist(g, fx.tone(base, 0.9), 94, 12, string=p.get("string", (245, 245, 245)))
-    c.socks(g, (250, 250, 250), 86, 112, stripe=panel)
-    c.sneakers(g, **p.get("shoes", {}))
+            dt.stitch(d, [(0, length - 5), (img.width, length - 5)], fx.rgba(thread), 2, 2)
+            rnd = random.Random(f"{limb.name}{img.width}")
+            for x in range(0, img.width, 2):
+                d.line([(x, length - 1), (x + rnd.uniform(-0.5, 0.5), length + rnd.uniform(0.5, 3))],
+                       fill=fx.rgba(fx.tone(denim_c, 1.7), 220))
+    side_seams(g, denim_c, 0.55)
+    waistband(g, tex, y0=98, ink=ink, thread=thread)
+    F = g.torso.faces["F"]
+    d = ImageDraw.Draw(F)
+    d.line([(64, 108), (64, 128)], fill=fx.rgba(ink))
+    dt.stitch(d, [(70, 110), (70, 124), (64, 127)], fx.rgba(thread), 2, 2)
+    for side in (0, 1):
+        pts = [(26, 108), (18, 114), (12, 127)]
+        pts = c.mirror_pts(pts) if side else pts
+        d.line(pts, fill=fx.rgba(ink), width=1)
+        dt.stitch(d, [(x + (2 if side else -2), y) for x, y in pts], fx.rgba(thread), 2, 2)
+    c.finish(g, 0.8, hem=length, folds=0.6, fit="fitted")
+    if not _belt(g, p, 99):
+        dt.button(F, 64, 103, 2.4, p.get("button", (176, 116, 60)))
+    legs_and_shoes(g, p, length)
+    return g
+
+
+def flare_leggings(p, brand):
+    """Stretchy flare leggings with a crossover waistband and chunky sneakers."""
+    base = p["base"]
+    tex = c.tex_smooth(base, 0.008, 0.05)
+    hem = 114
+    g = c.pants(tex, top=92, hem=hem)
+    band = c.tex_smooth(fx.tone(base, 1.08), 0.008, 0.05)
+    for f in g.torso.sides:
+        img = g.torso.faces[f]
+        if f == "F":
+            for pts in ([(0, 92), (76, 92), (64, 112), (0, 102)], [(128, 92), (52, 92), (64, 112), (128, 102)]):
+                lay = dt.textured_polygon(img.size, pts, band(img.size))
+                ImageDraw.Draw(lay).line(pts[1:3], fill=fx.rgba(fx.tone(base, 0.6)), width=1)
+                dt.place(img, lay, (0, 1, 1.0, 0.45))
+        else:
+            over(img, band((img.width, 10)), (0, 92))
+            ImageDraw.Draw(img).line([(0, 102), (img.width, 102)], fill=fx.rgba(fx.tone(base, 0.6)))
+    c.flare(g, 72, hem, 1.2)
+    c.finish(g, 0.85, baggy=0.2, hem=hem, fit="fitted")
+    for limb in g.limbs:
+        c.sheen(limb.faces["F"], 24, 32, 0.12, 3)
+        c.sheen(limb.faces[c.OUTER[limb.name]], 30, 36, 0.08, 3)
+    c.chunky_sneakers(g, **p.get("sneakers", {}))
+    return g
+
+
+def sundress_skirt(p, brand):
+    """The flowy skirt half of a sundress: soft drapes and a frilled hem."""
+    base = p["base"]
+    tex = c.fabric_tex(p)
+    length = p.get("length", 70)
+    g = c.pants(tex, top=96, hem=length)
+    for img in c.sides(g.torso):
+        c.drape(img, 96, 128, 14, 0.4, seed=img.width)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            c.drape(img, 0, length, 14, 0.45, seed=img.width + 3)
+    c.finish(g, 0.6, hem=length, folds=0.35)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            dt.ruffle(img, length - 6, length, tex(img.size, 9), base, wave=6, amp=1.4)
+    legs_and_shoes(g, p, length)
     return g
 
 
@@ -377,12 +487,13 @@ def scrubs_pants(p, brand):
 
 
 def pajama_pants(p, brand):
-    tex = c.tex_plaid(p["sett"])
+    tex = c.tex_plaid(p["sett"]) if p.get("sett") else c.fabric_tex(p)
     g = c.pants(tex, top=96)
     for limb in g.limbs:
         for img in c.sides(limb):
             d = ImageDraw.Draw(img)
             d.line([(0, 120), (img.width, 120)], fill=fx.rgba((0, 0, 0), 90))
     c.finish(g, 0.8, baggy=0.9)
-    drawstring_waist(g, p.get("band", fx.tone(p["sett"][0][0], 0.8)), 96, 12, string=(245, 245, 240))
+    band = fx.tone(p["sett"][0][0], 0.8) if p.get("sett") else fx.tone(p["base"], 0.9)
+    drawstring_waist(g, p.get("band", band), 96, 12, string=(245, 245, 240))
     return g

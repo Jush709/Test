@@ -11,6 +11,7 @@ from .fx import rgb, rgba, tone
 from .template import LAYOUT
 
 SKIN = (236, 192, 158)
+HAIR = (78, 50, 38)
 BG_TOP = (246, 247, 250)
 BG_BOTTOM = (226, 229, 236)
 HEAD = (80, 70)
@@ -29,17 +30,40 @@ def _layered(size, skin, layers):
     return out
 
 
-def _head(face_front, skin):
+def _head(face_front, skin, hair=HAIR):
+    """Head with long hair: bangs and a face from the front, all hair from the back."""
     w, h = HEAD
-    img = Image.new("RGBA", (w, h))
+    pad = 10
+    s = 4
+    img = Image.new("RGBA", ((w + 2 * pad) * s, (h + 36) * s))
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle([0, 0, w - 1, h - 1], radius=22, fill=rgba(skin), outline=rgba(tone(skin, 0.85)))
+    hl = tone(hair, 1.25)
+
+    def box(x0, y0, x1, y1):
+        return [(x0 + pad) * s, y0 * s, (x1 + pad) * s, y1 * s]
+
+    # hair behind the head (shows beside the face and above the shoulders)
+    d.rounded_rectangle(box(-8, -3, w + 8, h + 34), radius=24 * s, fill=rgba(hair))
     if face_front:
-        eye = rgba((30, 30, 34))
-        d.ellipse([24, 26, 31, 35], fill=eye)
-        d.ellipse([w - 31, 26, w - 24, 35], fill=eye)
-        d.arc([26, 34, w - 26, 54], 20, 160, fill=eye, width=3)
-    return img
+        d.rounded_rectangle(box(0, 0, w - 1, h - 1), radius=22 * s, fill=rgba(skin), outline=rgba(tone(skin, 0.85)))
+        d.chord(box(-2, -10, w + 2, 40), 180, 360, fill=rgba(hair))
+        d.pieslice(box(-6, -4, 34, 46), 180, 300, fill=rgba(hair))
+        d.pieslice(box(w - 34, -4, w + 6, 46), 240, 360, fill=rgba(hair))
+        d.arc(box(14, -4, w - 14, 22), 200, 340, fill=rgba(hl), width=2 * s)
+        eye = rgba((36, 28, 30))
+        for ex in (22, w - 32):
+            d.ellipse(box(ex, 28, ex + 10, 40), fill=eye)
+            d.ellipse(box(ex + 2, 30, ex + 5, 33), fill=(255, 255, 255, 255))
+        d.line(box(18, 30, 23, 27)[:4], fill=eye, width=2 * s)
+        d.line(box(w - 23, 27, w - 18, 30)[:4], fill=eye, width=2 * s)
+        for bx in (14, w - 28):
+            d.ellipse(box(bx, 42, bx + 14, 49), fill=(255, 140, 150, 110))
+        d.arc(box(32, 40, w - 32, 54), 30, 150, fill=rgba((196, 92, 100)), width=2 * s)
+    else:
+        d.rounded_rectangle(box(-4, -3, w + 4, h + 6), radius=24 * s, fill=rgba(hair))
+        for x in (16, 34, 50, 66):
+            d.arc(box(x - 10, 4, x + 10, h + 20), 250, 290, fill=rgba(hl), width=s)
+    return img.resize((w + 2 * pad, h + 36), Image.LANCZOS)
 
 
 def view(shirt=None, pants=None, tshirt=None, side="front", skin=SKIN):
@@ -60,7 +84,7 @@ def view(shirt=None, pants=None, tshirt=None, side="front", skin=SKIN):
 
     W, top = 256, HEAD[1] + 6
     img = Image.new("RGBA", (W, top + 256))
-    img.alpha_composite(_head(front, skin), ((W - HEAD[0]) // 2, 2))
+    img.alpha_composite(_head(front, skin), ((W - HEAD[0]) // 2 - 10, 2))
     img.alpha_composite(torso, (64, top))
     img.alpha_composite(arms[0], (0, top))
     img.alpha_composite(arms[1], (192, top))

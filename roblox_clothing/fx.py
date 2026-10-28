@@ -7,7 +7,7 @@ import math
 import zlib
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 
 # ---------------------------------------------------------------- colours
@@ -63,19 +63,24 @@ def _rng(seed):
 
 
 def smooth_noise(size, cell, seed=0):
-    """Value noise in [0, 1]: a random grid every `cell` px, bicubic upsampled."""
+    """Value noise in [0, 1]: a random grid every `cell` px, bicubic upsampled.
+
+    `cell` may be an (x, y) pair for stretched noise, e.g. vertical drapes.
+    """
     w, h = size
-    cell = max(1, int(cell))
-    gw, gh = math.ceil(w / cell) + 3, math.ceil(h / cell) + 3
+    cx, cy = (cell, cell) if not isinstance(cell, tuple) else cell
+    cx, cy = max(1, int(cx)), max(1, int(cy))
+    gw, gh = math.ceil(w / cx) + 3, math.ceil(h / cy) + 3
     grid = Image.fromarray(_rng(seed).random((gh, gw)).astype(np.float32), "F")
-    big = np.asarray(grid.resize((gw * cell, gh * cell), Image.BICUBIC), np.float32)
-    return big[cell:cell + h, cell:cell + w]
+    big = np.asarray(grid.resize((gw * cx, gh * cy), Image.BICUBIC), np.float32)
+    return big[cy:cy + h, cx:cx + w]
 
 
 def fbm(size, cell, seed=0, octaves=3):
     total, amp, norm = 0.0, 1.0, 0.0
     for o in range(octaves):
-        total = total + amp * smooth_noise(size, max(1, cell // 2 ** o), seed * 31 + o)
+        c = tuple(max(1, v // 2 ** o) for v in cell) if isinstance(cell, tuple) else max(1, cell // 2 ** o)
+        total = total + amp * smooth_noise(size, c, seed * 31 + o)
         norm += amp
         amp *= 0.5
     return total / norm
@@ -206,7 +211,7 @@ def argyle(size, c1, c2, line, cell=(32, 40), offset=(0, 0)):
 
 
 def cable_knit(size, color, period=32, cable=12, offset=0, seed=0):
-    """Chunky sweater knit: stockinette columns with twisted rope cables."""
+    """Chunky sweater knit: stockinette columns with twisted rope cables (cable=0 for plain knit)."""
     w, h = size
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     x = xx + offset
@@ -214,10 +219,10 @@ def cable_knit(size, color, period=32, cable=12, offset=0, seed=0):
     sy = yy % 4
     k = 1 - 0.09 * (np.abs(sx - 1.5) / 1.5) ** 2 - 0.035 * (sy == 3)
     cx = (x % period) - period / 2
-    in_cable = np.abs(cx) < cable / 2
+    in_cable = np.abs(cx) < cable / 2 if cable else np.zeros_like(cx, bool)
     rope = ((yy + np.abs(cx) * 1.3 * np.sign(cx + 0.01)) % 9) / 9
-    rope_k = 0.9 + 0.15 * np.sin(np.pi * rope) - 0.1 * (np.abs(cx) / (cable / 2)) ** 2
-    groove = (np.abs(np.abs(cx) - cable / 2) < 1.2)
+    rope_k = 0.9 + 0.15 * np.sin(np.pi * rope) - 0.1 * (np.abs(cx) / (max(cable, 1) / 2)) ** 2
+    groove = (np.abs(np.abs(cx) - cable / 2) < 1.2) if cable else np.zeros_like(cx, bool)
     k = np.where(in_cable, rope_k, k)
     k = np.where(groove, 0.84, k)
     k = k + grain(size, 0.02, seed)
@@ -259,6 +264,162 @@ def stripes(size, colors, widths, vertical=False, offset=0):
         idx = (np.arange(h) + offset) % len(seq)
         arr = np.broadcast_to(seq[idx][:, None, :], (h, w, 3)).copy()
     return to_image(arr + grain(size, 0.025, 2)[..., None])
+
+
+def satin(size, color, seed=0, sheen=0.35, drape=(22, 90)):
+    """Liquid satin: soft vertical drapes with bright, narrow highlights."""
+    n = fbm(size, drape, seed, 2)
+    k = 0.95 + (n - 0.5) * 0.22
+    hl = np.clip((n - 0.6) / 0.12, 0, 1) ** 2 * sheen * 0.7
+    arr = _solid(size, color) * k[..., None]
+    arr = arr + (1 - arr) * hl[..., None]
+    return to_image(arr + grain(size, 0.004, seed, 0)[..., None])
+
+
+def mohair(size, color, seed=0, fuzz=0.10):
+    """Fuzzy brushed knit: soft blotches plus stray light and dark fibres."""
+    w, h = size
+    base = _solid(size, color) * (1 + (fbm(size, 5, seed, 2) - 0.5) * 0.12)[..., None]
+    img = to_image(base + grain(size, 0.02, seed, 0.3)[..., None])
+    fib = Image.new("RGBA", size)
+    d = ImageDraw.Draw(fib)
+    r = _rng(seed + 7)
+    light, dark = tone(color, 1.0 + fuzz * 3), tone(color, 1 - fuzz * 2.5)
+    for _ in range(int(w * h / 9)):
+        x, y = r.uniform(0, w), r.uniform(0, h)
+        a = r.uniform(0, math.pi)
+        ln = r.uniform(1.5, 3.5)
+        c = light if r.random() < 0.6 else dark
+        d.line([(x, y), (x + ln * math.cos(a), y + ln * math.sin(a))], fill=c + (int(r.uniform(50, 110)),))
+    img.alpha_composite(fib.filter(ImageFilter.GaussianBlur(0.35)))
+    return img
+
+
+def gingham(size, color, ground=(255, 255, 255), check=6, offset=(0, 0)):
+    """Two-colour gingham: solid where both threads are coloured, half-tone where one is."""
+    return plaid(size, [(color, check), (ground, check)], offset=offset, twill=0.12)
+
+
+def leopard(size, base=(214, 164, 98), spot=(150, 98, 46), ring=(34, 24, 18), seed=0, density=0.010):
+    """Leopard rosettes: broken dark rings around darker centres."""
+    w, h = size
+    s = 3
+    img = Image.new("RGBA", (w * s, h * s), rgba(base))
+    d = ImageDraw.Draw(img)
+    r = _rng(seed)
+    for _ in range(int(w * h * density)):
+        x, y = r.uniform(-4, w + 4) * s, r.uniform(-4, h + 4) * s
+        rx, ry = r.uniform(2.0, 3.4) * s, r.uniform(1.6, 2.8) * s
+        d.ellipse([x - rx * 0.6, y - ry * 0.6, x + rx * 0.6, y + ry * 0.6], fill=rgba(spot))
+        a0 = r.uniform(0, 360)
+        for k in range(int(r.integers(2, 4))):
+            start = a0 + k * 120 + r.uniform(-20, 20)
+            d.arc([x - rx, y - ry, x + rx, y + ry], start, start + r.uniform(60, 95), fill=rgba(ring),
+                  width=int(1.4 * s))
+    out = img.resize(size, Image.LANCZOS)
+    return to_image(to_array(out)[..., :3] + grain(size, 0.02, seed)[..., None])
+
+
+def cow(size, base=(250, 250, 248), spot=(26, 26, 28), seed=0, cell=30):
+    """Cow print: big soft-edged blobs."""
+    n = fbm(size, cell, seed, 3)
+    m = np.clip((n - 0.58) / 0.03, 0, 1)[..., None]
+    arr = _solid(size, base) * (1 - m) + _solid(size, spot) * m
+    return to_image(arr + grain(size, 0.015, seed)[..., None])
+
+
+def print_pattern(size, base, motif, spacing=(16, 16), seed=0, ground=None, jitter=1.5):
+    """Ditsy all-over print: `motif(draw, x, y, s, rnd)` stamped on a half-drop grid.
+
+    Motifs draw in final-pixel units multiplied by `s` (the supersampling factor).
+    """
+    w, h = size
+    s = 4
+    img = ground(size) if ground else fabric(size, base, 0.012, seed)
+    big = Image.new("RGBA", (w * s, h * s))
+    d = ImageDraw.Draw(big)
+    r = _rng(seed)
+    sx, sy = spacing
+    for j in range(-1, h // sy + 2):
+        for i in range(-1, w // sx + 2):
+            x = i * sx + (sx / 2 if j % 2 else 0) + r.uniform(-jitter, jitter)
+            y = j * sy + r.uniform(-jitter, jitter)
+            motif(d, x * s, y * s, s, r)
+    img.alpha_composite(big.resize(size, Image.LANCZOS))
+    return img
+
+
+# small motifs for print_pattern ------------------------------------------------
+
+def _heart_pts(x, y, r, n=28):
+    pts = []
+    for i in range(n):
+        t = 2 * math.pi * i / n
+        hx = 16 * math.sin(t) ** 3
+        hy = -(13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t))
+        pts.append((x + hx * r / 16, y + hy * r / 16))
+    return pts
+
+
+def motif_heart(color):
+    def draw(d, x, y, s, r):
+        d.polygon(_heart_pts(x, y, 2.6 * s), fill=rgba(color))
+    return draw
+
+
+def motif_flower(petal, center=(255, 214, 90), size=1.0):
+    def draw(d, x, y, s, r):
+        k = s * size
+        for a in range(5):
+            ang = math.radians(a * 72 - 90 + r.uniform(0, 30))
+            px, py = x + 1.9 * k * math.cos(ang), y + 1.9 * k * math.sin(ang)
+            d.ellipse([px - 1.5 * k, py - 1.5 * k, px + 1.5 * k, py + 1.5 * k], fill=rgba(petal))
+        d.ellipse([x - 1.1 * k, y - 1.1 * k, x + 1.1 * k, y + 1.1 * k], fill=rgba(center))
+    return draw
+
+
+def motif_cherry(red=(214, 28, 48), stem=(60, 120, 50)):
+    def draw(d, x, y, s, r):
+        d.line([(x - 1.4 * s, y + 1.2 * s), (x + 0.4 * s, y - 2.6 * s), (x + 1.8 * s, y + 1.6 * s)],
+               fill=rgba(stem), width=max(1, int(0.6 * s)))
+        d.ellipse([x + 0.4 * s, y - 3.2 * s, x + 2.2 * s, y - 2.2 * s], fill=rgba(stem))
+        for cx, cy in ((x - 1.6 * s, y + 1.8 * s), (x + 1.8 * s, y + 2.2 * s)):
+            d.ellipse([cx - 1.6 * s, cy - 1.6 * s, cx + 1.6 * s, cy + 1.6 * s], fill=rgba(red))
+            d.ellipse([cx - 0.9 * s, cy - 1.0 * s, cx - 0.2 * s, cy - 0.3 * s], fill=(255, 255, 255, 170))
+    return draw
+
+
+def motif_strawberry(red=(232, 46, 64), leaf=(66, 150, 70)):
+    def draw(d, x, y, s, r):
+        d.polygon([(x - 2.4 * s, y - 1.0 * s), (x + 2.4 * s, y - 1.0 * s), (x + 1.2 * s, y + 2.4 * s),
+                   (x, y + 3.2 * s), (x - 1.2 * s, y + 2.4 * s)], fill=rgba(red))
+        d.ellipse([x - 2.5 * s, y - 2.0 * s, x + 2.5 * s, y + 0.6 * s], fill=rgba(red))
+        for dx, dy in ((-1, 0.2), (1, 0.3), (0, 1.4), (-0.7, 2.2), (0.8, 2.0), (0, -0.6)):
+            d.point([(x + dx * s, y + dy * s)], fill=(255, 236, 150, 255))
+        d.polygon([(x - 2.0 * s, y - 1.6 * s), (x, y - 2.8 * s), (x + 2.0 * s, y - 1.6 * s), (x, y - 0.8 * s)],
+                  fill=rgba(leaf))
+    return draw
+
+
+def motif_bow(color):
+    def draw(d, x, y, s, r):
+        d.polygon([(x, y), (x - 2.6 * s, y - 1.6 * s), (x - 2.6 * s, y + 1.6 * s)], fill=rgba(color))
+        d.polygon([(x, y), (x + 2.6 * s, y - 1.6 * s), (x + 2.6 * s, y + 1.6 * s)], fill=rgba(color))
+        d.line([(x, y), (x - 1.4 * s, y + 2.8 * s)], fill=rgba(color), width=int(0.8 * s))
+        d.line([(x, y), (x + 1.4 * s, y + 2.8 * s)], fill=rgba(color), width=int(0.8 * s))
+        d.ellipse([x - 0.8 * s, y - 0.8 * s, x + 0.8 * s, y + 0.8 * s], fill=rgba(tone(color, 0.8)))
+    return draw
+
+
+def motif_star(color):
+    def draw(d, x, y, s, r):
+        pts = []
+        for i in range(10):
+            rr = (2.8 if i % 2 == 0 else 1.2) * s
+            a = math.radians(-90 + i * 36)
+            pts.append((x + rr * math.cos(a), y + rr * math.sin(a)))
+        d.polygon(pts, fill=rgba(color))
+    return draw
 
 
 # ---------------------------------------------------------------- masks & compositing

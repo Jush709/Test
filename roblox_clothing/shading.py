@@ -80,18 +80,19 @@ class _Map:
         return Image.fromarray(out, "L").crop((PAD, PAD, PAD + self.w, PAD + self.h))
 
 
-def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0, folds=1.0):
+def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0, folds=1.0, fit="relaxed"):
     """Shading map for one face.
 
     kind: "shirt" or "pants"; part: "torso" / "right" / "left".
     sleeve_end: lowest fabric row on arm faces (bunching collects above it).
     hem: lowest fabric row on leg faces. baggy: 0..1, more stacking at ankles.
     folds: scales the depth of fine creases.
+    fit: "fitted" pulls in the waist with side shadows and adds tension folds there.
     """
     rnd = random.Random(f"{kind}/{part}/{face}/{seed}")
     m = _Map(size)
     w, h = size
-    d = lambda v: int(v * folds)  # noqa: E731
+    d = lambda v: int(v * folds * 1.2)  # noqa: E731
 
     def jit(v, a):
         return v + rnd.uniform(-a, a)
@@ -102,9 +103,13 @@ def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0,
 
     if part == "torso":
         if face in "FB":
-            m.edges(left=84, right=84, bottom=104 if kind == "shirt" else None)
+            m.edges(left=76, right=76, bottom=104 if kind == "shirt" else None)
+            if fit == "fitted":
+                for x0 in (-30, w + 4):
+                    m.ellipse((x0, 50, x0 + 26, 122), 58)
+                m.ellipse((34, 64, 94, 116), 146)
             if kind == "shirt":
-                m.ellipse((20, 4 if face == "F" else 0, 108, 70), 142)
+                m.ellipse((20, 4 if face == "F" else 0, 108, 70), 150)
                 for side in (0, 1):
                     for i in range(3):
                         y0 = jit(20 + i * 9, 2)
@@ -114,6 +119,12 @@ def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0,
                         m.fold(pts, depth=d(52 - i * 8))
                 for x in (jit(26, 6), jit(64, 6), jit(102, 6)):
                     m.fold([(x, h + 2), (jit(x, 3), h - 10), (jit(x, 5), h - jit(22, 4))], depth=d(34), hl=(2, 0))
+                if fit == "fitted":
+                    for side in (0, 1):
+                        for i in range(3):
+                            y = jit(70 + i * 8, 2)
+                            pts = [(-2, y), (jit(9, 2), y + 2), (jit(18, 3), y - 1)]
+                            m.fold(mirror(pts, w) if side else pts, depth=d(40))
             else:
                 m.ellipse((8, 70, 120, 150), 146)
                 for side in (0, 1):
@@ -131,12 +142,12 @@ def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0,
     # limbs
     inner = face == INNER[part]
     if inner:
-        m.rect((-PAD, -PAD, w + PAD, h + PAD), 112)
-    m.edges(left=94, right=94)
+        m.rect((-PAD, -PAD, w + PAD, h + PAD), 108)
+    m.edges(left=86, right=86)
 
     if kind == "shirt":
         if not inner:
-            m.ellipse((-6, -20, 70, 20), 146)
+            m.ellipse((-6, -20, 70, 20), 152)
         end = sleeve_end
         if end > 70:
             ey = jit(60, 4)
@@ -154,7 +165,7 @@ def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0,
 
     # legs
     if not inner:
-        m.ellipse((10, -8, 54, 58), 146)
+        m.ellipse((10, -8, 54, 58), 154 if fit == "fitted" else 146)
     if face in "FB":
         ix = inner_edge_x(part, face, w)
         sgn = -1 if ix else 1
@@ -179,6 +190,10 @@ def face_map(kind, part, face, size, seed=0, sleeve_end=110, hem=128, baggy=0.0,
         m.fold([(x0, y), ((x0 + x1) / 2 + rnd.uniform(-10, 10), jit(y - 3, 3)), (x1, jit(y, 3))],
                depth=d(44 + 14 * baggy))
     return m.result()
+
+
+def mirror(pts, w):
+    return [(w - x, y) for x, y in pts]
 
 
 def shade_garment(g, strength=0.8, seed=0, **kw):
