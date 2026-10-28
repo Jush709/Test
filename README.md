@@ -1,7 +1,7 @@
 # Roblox Girls' Clothing Pack
 
-166 original, ready-to-upload Roblox clothing items aimed at girls' avatar trends:
-**100 shirts, 51 pants and 15 T-shirts**, plus 36 matching outfits. Everything comes from
+245 original, ready-to-upload Roblox clothing items aimed at girls' avatar trends:
+**141 shirts, 84 pants and 20 T-shirts**, plus 60 matching outfits. Everything comes from
 one Python generator, so you can rebrand or restyle the whole line in a few seconds.
 
 | | |
@@ -17,7 +17,7 @@ one Python generator, so you can rebrand or restyle the whole line in a few seco
 | `pants/*.png` | 585×559 classic **Pants** templates. Upload these files. |
 | `tshirts/*.png` | 512×512 classic **T-Shirt** graphics with transparent backgrounds. |
 | `previews/*.jpg` | Front and back render of each item on a blocky avatar (not for upload). |
-| `outfits/*.jpg` | 36 matching sets: coquette, Y2K, sundresses, school uniforms, sweatsuits, scrubs… |
+| `outfits/*.jpg` | 60 matching sets: prom dresses, cheer uniforms, sundresses, PJ sets, school uniforms… |
 | `LISTINGS.md` / `listings.csv` | A name, description and suggested price for every file, ready to copy. |
 | `catalog-*.jpg` | Contact sheets of everything. |
 
@@ -38,9 +38,16 @@ one Python generator, so you can rebrand or restyle the whole line in a few seco
   denim mini skirts with knee boots, flare leggings, ripped jeans, a goth mesh top, a leather jacket.
 - **Denim & layers**: baggy jeans, cargo pants (pink and white with chain belts), denim jackets,
   varsity jackets, open flannels.
+- **Balletcore**: ballet wrap tops, fuzzy shrug + cami tops and layered tulle skirts with ballet shoes.
+- **Baddie**: ruched tube tops (incl. leopard), cargo mini skirts and bodycon mini skirts (leopard, cow
+  print, satin) with boots or sneakers.
+- **Formal**: prom dresses in 6 colours, a bodice top + floor-length skirt that together make a gown
+  (also works for weddings and royal roleplay).
+- **Cheer**: cheerleader uniform tops with matching striped cheer skirts and sneakers.
+- **Sleepover**: satin pajama shirts + pants with piping and fluffy slippers; overalls + tee sets.
 - **Roleplay**: nurse scrubs (top + pants) in ceil blue, pink, lavender and teal.
-- **T-Shirts**: coquette bow, angel heart, strawberry, daisy, butterfly, mushroom, cherries, pixel
-  heart, good vibes, boba and more.
+- **T-Shirts**: coquette bow, angel heart, strawberry, daisy, butterfly, mushroom, rainbow, sleepy
+  moon, sunflower, kawaii cloud, ladybug, cherries, pixel heart, good vibes, boba and more.
 
 Most bottoms come with shoes and legwear already drawn on (Mary Janes, platform boots, knee boots,
 chunky sneakers, ballet flats, socks, tights, thigh-highs), so each one is a complete look.
@@ -73,7 +80,7 @@ for the current official rules.
 
 ## Tips for actually making Robux
 
-- **Don't upload all 166 at once.** Start with 10–15 likely sellers: the coquette bow cardigan and
+- **Don't upload all 245 at once.** Start with 10–15 likely sellers: the coquette bow cardigan and
   ruffle skirt, a couple of baby tees, flare jeans, a sundress set, a school uniform and pink nurse
   scrubs (roleplay games drive a lot of sales). Add more colours of whatever sells.
 - **Sell matching sets.** Upload both halves of an outfit and mention the other half in each

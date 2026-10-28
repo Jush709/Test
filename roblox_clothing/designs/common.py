@@ -1,6 +1,7 @@
 """Shared building blocks for shirt and pants designs."""
 
 import math
+import random
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -704,6 +705,10 @@ def fabric_tex(p):
         return tex_rib(base, 2, 0.08)
     if kind == "print":
         return tex_print(base, MOTIFS[p["motif"]](*p.get("motif_args", ())), p.get("spacing", (16, 16)))
+    if kind == "leopard":
+        return lambda size, ox=0: fx.leopard(size, base, p.get("spot", fx.tone(base, 0.7)), seed=size[0] + ox)
+    if kind == "cow":
+        return lambda size, ox=0: fx.cow(size, base, p.get("spot", (26, 26, 28)), seed=size[0] + ox)
     return tex_fabric(base, 0.012)
 
 
@@ -715,3 +720,50 @@ MOTIFS = {
     "bow": fx.motif_bow,
     "star": fx.motif_star,
 }
+
+
+def glitter(img, density=0.03, color=(255, 255, 255), seed=0):
+    """Scatter tiny sparkles over the fabric already on a face."""
+    r = random.Random(f"glitter/{img.size}/{seed}")
+    lay = Image.new("RGBA", img.size)
+    d = ImageDraw.Draw(lay)
+    for _ in range(int(img.width * img.height * density)):
+        x, y = r.uniform(0, img.width), r.uniform(0, img.height)
+        a = int(r.uniform(90, 230))
+        d.point([(x, y)], fill=fx.rgba(color, a))
+        if r.random() < 0.12:
+            d.line([(x - 1, y), (x + 1, y)], fill=fx.rgba(color, a // 2))
+            d.line([(x, y - 1), (x, y + 1)], fill=fx.rgba(color, a // 2))
+    over(img, fx.clip_to(lay, img))
+
+
+def tex_tulle(color, opacity=0.55):
+    """Sheer tulle: translucent colour with a fine net and soft vertical gathers."""
+    def tex(size, ox=0):
+        w, h = size
+        x = np.arange(w) + ox
+        a = opacity * (0.85 + 0.15 * np.cos(2 * np.pi * x / 9))
+        alpha = np.broadcast_to(a[None, :], (h, w)).astype(np.float32)
+        img = fx.to_image(np.broadcast_to(np.array(fx.rgb(color), np.float32) / 255, (h, w, 3)).copy(), alpha)
+        net = fx.fishnet(size, fx.tone(color, 1.25), 3, (ox, 0))
+        net.putalpha(net.getchannel("A").point(lambda v: v // 3))
+        img.alpha_composite(net)
+        return img
+    return tex
+
+
+def slippers(g, color=(252, 252, 252), height=14):
+    """Fluffy slippers over the feet."""
+    for limb in g.limbs:
+        for f in limb.sides:
+            img = limb.faces[f]
+            w, h = img.size
+            fluff = fx.mohair((w, height + 4), color, seed=w + h)
+            m = Image.new("L", (w, height + 4))
+            ImageDraw.Draw(m).rounded_rectangle([0, 2, w, height + 6], radius=6, fill=255)
+            fluff.putalpha(m)
+            sh = Image.new("RGBA", img.size)
+            ImageDraw.Draw(sh).rectangle([0, h - height - 3, w, h - height], fill=(0, 0, 0, 60))
+            over(img, fx.clip_to(sh.filter(ImageFilter.GaussianBlur(1.2)), img))
+            over(img, fluff, (0, h - height - 2))
+        _sole(limb, fx.tone(color, 0.85))

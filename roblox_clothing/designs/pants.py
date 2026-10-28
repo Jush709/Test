@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from .. import details as dt
 from .. import fx
-from ..garment import over
+from ..garment import Garment, over
 from ..template import inner_edge_x
 from . import common as c
 
@@ -351,6 +351,12 @@ def pleated_skirt(p, brand):
     for f in g.torso.sides:
         img = g.torso.faces[f]
         img.paste(fx.apply_shade(img, pleats(img, 110, 128), 0.7), (0, 0))
+    if p.get("hem_stripes"):
+        for limb in g.limbs:
+            for img in c.sides(limb):
+                d = ImageDraw.Draw(img)
+                for (y0, y1), col in zip(((length - 9, length - 6), (length - 4, length - 3)), p["hem_stripes"]):
+                    d.rectangle([0, y0, img.width, y1], fill=fx.rgba(col))
     c.finish(g, 0.6, hem=length, folds=0.5)
     default_band = fx.tone(p["sett"][0][0], 0.7) if p.get("sett") else fx.tone(p["base"], 0.95)
     band = p.get("band", default_band)
@@ -496,4 +502,162 @@ def pajama_pants(p, brand):
     c.finish(g, 0.8, baggy=0.9)
     band = fx.tone(p["sett"][0][0], 0.8) if p.get("sett") else fx.tone(p["base"], 0.9)
     drawstring_waist(g, p.get("band", band), 96, 12, string=(245, 245, 240))
+    return g
+
+
+# ================================================================= more women's bottoms
+
+def gown_skirt(p, brand):
+    """Floor-length gown skirt: flowing satin drapes that cover the feet."""
+    base = p["base"]
+    tex = c.tex_satin(base, 0.3)
+    g = c.pants(tex, top=96, hem=128)
+    for img in c.sides(g.torso):
+        c.drape(img, 96, 128, 16, 0.32, seed=img.width + 1)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            c.drape(img, 0, 128, 16, 0.4, seed=img.width + 5)
+    c.flare(g, 40, 128, 0.6)
+    c.finish(g, 0.6, hem=128, folds=0.3)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            c.sheen(img, 20, 28, 0.1, 4)
+            d = ImageDraw.Draw(img)
+            d.line([(0, 124), (img.width, 124)], fill=fx.rgba(fx.tone(base, 0.7), 150))
+            if p.get("sparkle"):
+                c.glitter(img, 0.05, p["sparkle"], seed=img.width + 2)
+            if p.get("lace"):
+                dt.lace_band(img, 116, 124, p["lace"], scallop=6)
+    return g
+
+
+def pj_pants(p, brand):
+    """Satin pajama pants with contrast piping and fluffy slippers."""
+    base, piping = p["base"], p["piping"]
+    tex = c.tex_satin(base, 0.25)
+    g = c.pants(tex, top=96)
+    for limb in g.limbs:
+        out = limb.faces[c.OUTER[limb.name]]
+        ImageDraw.Draw(out).line([(32, 0), (32, 128)], fill=fx.rgba(piping), width=1)
+        for img in c.sides(limb):
+            ImageDraw.Draw(img).line([(0, 110), (img.width, 110)], fill=fx.rgba(piping), width=1)
+    c.finish(g, 0.8, baggy=0.7, hem=114)
+    drawstring_waist(g, fx.tone(base, 0.95), 96, 10, string=piping)
+    c.slippers(g, p.get("slippers", (252, 252, 252)))
+    return g
+
+
+def overall_shorts(p, brand):
+    """Denim shorts half of the overall set: rolled cuffs, crew socks and sneakers."""
+    denim_c, thread = p["denim"], p.get("thread", (214, 150, 70))
+    tex = c.tex_denim(denim_c)
+    length = 40
+    g = c.pants(tex, top=96, hem=length)
+    for limb in g.limbs:
+        c.fade(limb.faces["F"], [(8, 0, 56, 36)], 0.22, 8)
+        for img in c.sides(limb):
+            over(img, c.tex_denim(fx.tone(denim_c, 1.12))((img.width, 7), 3), (0, length - 7))
+            d = ImageDraw.Draw(img)
+            d.line([(0, length - 7), (img.width, length - 7)], fill=fx.rgba(fx.tone(denim_c, 0.5)))
+            dt.stitch(d, [(0, length - 3), (img.width, length - 3)], fx.rgba(thread), 2, 2)
+    side_seams(g, denim_c, 0.55)
+    c.finish(g, 0.75, hem=length, folds=0.6)
+    legs_and_shoes(g, p, length)
+    return g
+
+
+def biker_shorts(p, brand):
+    """Fitted high-waisted biker shorts with crew socks and chunky sneakers."""
+    base = p["base"]
+    tex = c.tex_smooth(base, 0.008, 0.05)
+    length = 50
+    g = c.pants(tex, top=92, hem=length)
+    for img in c.sides(g.torso):
+        over(img, c.tex_smooth(fx.tone(base, 1.06))((img.width, 10)), (0, 92))
+        ImageDraw.Draw(img).line([(0, 102), (img.width, 102)], fill=fx.rgba(fx.tone(base, 0.6)))
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            ImageDraw.Draw(img).line([(0, length - 3), (img.width, length - 3)], fill=fx.rgba(fx.tone(base, 0.6)))
+    c.finish(g, 0.85, hem=length, fit="fitted")
+    for limb in g.limbs:
+        c.sheen(limb.faces["F"], 24, 32, 0.14, 3)
+    legs_and_shoes(g, p, length)
+    return g
+
+
+def tulle_skirt(p, brand):
+    """Layered sheer tulle ballet skirt with a satin ribbon waist and bow."""
+    base = p["base"]
+    tulle = c.tex_tulle(base, p.get("opacity", 0.5))
+    length = 56
+    g = Garment("pants")
+    g.top, g.hem = 100, length
+    if p.get("tights"):
+        c.tights(g, p["tights"], p.get("tights_opacity", 0.8))
+    c.fill(g.torso, tulle, 100, 128, caps="D")
+    for limb in g.limbs:
+        c.fill(limb, tulle, 0, length, caps="U")
+        c.fill(limb, tulle, 0, length - 10, caps="")
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            xs = np.arange(img.width)
+            hem = (length - 1 + 1.5 * np.sin(xs / 3.0)).astype(int)
+            a = np.asarray(img.getchannel("A")).copy()
+            for x in xs:
+                a[hem[x]:length, x] = 0
+            img.putalpha(Image.fromarray(a))
+    for img in c.sides(g.torso):
+        lay = c.tex_satin(p.get("ribbon", base), 0.3)(img.size)
+        lay.putalpha(c.mask_from(img.size, lambda d: d.rectangle([0, 100, img.width, 106], fill=255)))
+        dt.place(img, lay, (0, 1, 0.8, 0.45))
+    dt.bow(g.torso.faces["F"], 64, 103, 14, p.get("ribbon", base), tails=1.2)
+    legs_and_shoes(g, p, length)
+    return g
+
+
+def cargo_skirt(p, brand):
+    """Y2K cargo mini skirt with flap pockets and a belt."""
+    base = p["base"]
+    tex = c.tex_denim(base)
+    length = 40
+    g = c.pants(tex, top=98, hem=length)
+    ink = fx.tone(base, 0.5)
+    waistband(g, tex, y0=98, ink=ink)
+    for limb in g.limbs:
+        F = limb.faces["F"]
+        ox = 64 - inner_edge_x(limb.name, "F", 64)
+        box = (4, 6, 30, 30) if ox == 0 else (34, 6, 60, 30)
+        dt.pocket(F, box, base, stitch_color=fx.tone(base, 0.7), texture=tex(F.size, 9), flap=8,
+                  button_color=p.get("snap", (40, 40, 40)))
+        out = limb.faces[c.OUTER[limb.name]]
+        dt.pocket(out, (12, 6, 52, 32), base, stitch_color=fx.tone(base, 0.7), texture=tex(out.size, 6), flap=8,
+                  button_color=p.get("snap", (40, 40, 40)))
+        for img in c.sides(limb):
+            dt.stitch(ImageDraw.Draw(img), [(0, length - 4), (img.width, length - 4)], fx.rgba(fx.tone(base, 0.7)),
+                      2, 2)
+    side_seams(g, base, 0.6)
+    c.finish(g, 0.8, hem=length, folds=0.6, fit="fitted")
+    if not _belt(g, p, 99):
+        dt.button(g.torso.faces["F"], 64, 103, 2.2, (60, 60, 64))
+    legs_and_shoes(g, p, length)
+    return g
+
+
+def mini_skirt(p, brand):
+    """Bodycon mini skirt in a statement fabric (leopard, cow print, satin...)."""
+    base = p["base"]
+    tex = c.fabric_tex(p)
+    length = 38
+    g = c.pants(tex, top=100, hem=length)
+    for img in c.sides(g.torso):
+        over(img, c.tex_smooth(p.get("band", fx.tone(base, 0.85)))((img.width, 5)), (0, 100))
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            ImageDraw.Draw(img).line([(0, length - 1), (img.width, length - 1)], fill=fx.rgba((0, 0, 0), 90))
+    c.finish(g, 0.8, hem=length, folds=0.5, fit="fitted")
+    if p.get("fabric") == "satin":
+        for limb in g.limbs:
+            c.sheen(limb.faces["F"], 22, 30, 0.12, 3)
+    _belt(g, p, 100)
+    legs_and_shoes(g, p, length)
     return g

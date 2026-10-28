@@ -562,6 +562,219 @@ for key, label, base in (("ceil-blue", "Ceil Blue", (116, 160, 210)), ("pink", "
         keywords=["scrubs", "nurse", "doctor", "hospital", "roleplay"])
     outfit(f"Scrubs - {label}", f"scrubs-top-{key}", f"scrubs-pants-{key}")
 
+# ------------------------------------------------------------------ drop 2: more styles
+
+for key, label, base in (("ballet-pink", "Ballet Pink", (244, 200, 210)), ("black", "Black", (28, 26, 30)),
+                         ("cream", "Cream", (240, 230, 212)), ("lavender", "Lavender", (206, 190, 236))):
+    add(f"wrap-top-{key}", "shirt", f"Ballet Wrap Top - {label}",
+        f"Balletcore {label.lower()} wrap top with a crossover V neck, fitted long sleeves and a side tie bow.",
+        7, garment(S.wrap_top, {"base": base}), pair=f"tulle-skirt-{'black' if key == 'black' else 'pink'}",
+        collection="Balletcore", keywords=["balletcore", "wrap top", "ballet", "coquette", "soft girl"])
+
+for key, label, pal in (
+        ("black", "Black", {"base": BLACK, "ring": (226, 196, 120)}),
+        ("white", "White", {"base": (248, 248, 246), "ring": (226, 196, 120)}),
+        ("hot-pink", "Hot Pink", {"base": HOT_PINK, "bow": (250, 210, 226)}),
+        ("leopard", "Leopard", {"base": (214, 164, 98), "fabric": "leopard", "ring": (226, 196, 120)})):
+    add(f"tube-top-{key}", "shirt", f"Ruched Tube Top - {label}",
+        f"Strapless ruched {label.lower()} tube top, cropped, with a {'gold ring' if pal.get('ring') else 'bow'} "
+        "at the centre. Baddie summer staple.", 6, garment(S.tube_top, pal),
+        pair="mini-skirt-black-satin" if key == "leopard" else "cargo-skirt-black",
+        collection="Baddie", keywords=["tube top", "baddie", "y2k", "crop top", "summer"])
+
+for key, label, pal in (
+        ("pink-white", "Pink & White", {"cami": (248, 246, 242), "shrug": (246, 196, 210)}),
+        ("white-black", "White & Black", {"cami": (24, 24, 28), "shrug": (250, 250, 250), "lace": (44, 44, 50)}),
+        ("lavender", "Lavender", {"cami": (206, 190, 236), "shrug": (226, 214, 248)})):
+    add(f"shrug-cami-{key}", "shirt", f"Fuzzy Shrug + Cami - {label}",
+        f"Cropped fuzzy bolero shrug over a lace-trim satin cami ({label.lower()}). Balletcore and coquette.", 8,
+        garment(S.shrug_cami, pal), pair=f"tulle-skirt-{'black' if key == 'white-black' else 'white'}",
+        collection="Balletcore", keywords=["shrug", "bolero", "balletcore", "coquette", "fuzzy"])
+
+for key, label, base, ribbon, extra in (
+        ("pink", "Ballet Pink", (246, 190, 206), (240, 150, 180),
+         {"tights": (252, 252, 252), "tights_opacity": 0.7, "shoes": "ballet", "shoe_color": (246, 190, 206)}),
+        ("white", "White", (252, 252, 252), (236, 224, 232), {"shoes": "ballet", "shoe_color": (252, 252, 252),
+                                                              "shoe_bow": (246, 190, 206)}),
+        ("black", "Black", (30, 28, 32), (30, 28, 32), {"tights": (22, 22, 26), "shoes": "mary_janes"}),
+        ("lavender", "Lavender", (206, 190, 236), (186, 166, 226), {"shoes": "ballet", "shoe_color": (252, 252, 252),
+                                                                    "shoe_bow": (186, 166, 226)})):
+    add(f"tulle-skirt-{key}", "pants", f"Tulle Ballet Skirt - {label}",
+        f"Layered sheer {label.lower()} tulle skirt with a satin ribbon bow"
+        f"{' and tights' if extra.get('tights') else ''}, plus ballet shoes. Balletcore dream.", 8,
+        garment(P.tulle_skirt, dict(extra, base=base, ribbon=ribbon)),
+        pair=f"wrap-top-{'black' if key == 'black' else 'ballet-pink'}", collection="Balletcore",
+        keywords=["tulle skirt", "tutu", "balletcore", "ballet", "coquette"])
+
+outfit("Balletcore Set - Pink", "wrap-top-ballet-pink", "tulle-skirt-pink")
+outfit("Balletcore Set - Black", "wrap-top-black", "tulle-skirt-black")
+outfit("Balletcore Set - Shrug", "shrug-cami-pink-white", "tulle-skirt-white")
+
+CHEER = [
+    ("red", "Red & White", {"base": (200, 30, 44), "accent": WHITE, "accent2": (28, 28, 32), "number": "1"}),
+    ("pink", "Pink & White", {"base": (240, 130, 170), "accent": WHITE, "accent2": (200, 60, 110), "number": "7"}),
+    ("blue-gold", "Blue & Gold", {"base": (30, 70, 170), "accent": (246, 196, 60), "accent2": WHITE, "number": "3"}),
+    ("black-pink", "Black & Pink", {"base": (26, 26, 30), "accent": PINK, "accent2": WHITE, "number": "9"}),
+]
+for key, label, pal in CHEER:
+    add(f"cheer-top-{key}", "shirt", f"Cheerleader Top - {label}",
+        f"{label} cheer uniform crop top with V neck, chevron stripes and the team name. For school and "
+        "cheer roleplay.", 7, garment(S.cheer_top, pal), pair=f"cheer-skirt-{key}", collection="Cheer",
+        keywords=["cheerleader", "cheer", "uniform", "school", "roleplay"])
+    add(f"cheer-skirt-{key}", "pants", f"Cheer Skirt + Sneakers - {label}",
+        f"{label} pleated cheer skirt with striped hem, crew socks and white sneakers.", 7,
+        garment(P.pleated_skirt, {"base": pal["base"], "pleat": 10, "length": 40, "button": False,
+                                  "hem_stripes": [pal["accent"], pal["accent2"]], "legwear": "crew_socks",
+                                  "shoes": "chunky"}),
+        pair=f"cheer-top-{key}", collection="Cheer", keywords=["cheerleader", "cheer skirt", "uniform", "roleplay"])
+    outfit(f"Cheer Uniform - {label}", f"cheer-top-{key}", f"cheer-skirt-{key}")
+
+GOWNS = [
+    ("rose-pink", "Rose Pink", {"base": (240, 170, 190)}),
+    ("midnight-sparkle", "Midnight Sparkle", {"base": (28, 34, 80), "sparkle": (220, 226, 255),
+                                              "brooch": (230, 235, 250)}),
+    ("red", "Red", {"base": (190, 20, 40), "straps": True}),
+    ("bridal-white", "Bridal White", {"base": (250, 248, 244), "lace": WHITE, "sparkle": WHITE,
+                                      "brooch": (240, 240, 250)}),
+    ("lavender", "Lavender", {"base": (200, 180, 236), "sparkle": WHITE}),
+    ("black-sparkle", "Black Sparkle", {"base": (24, 24, 28), "sparkle": (220, 220, 230), "straps": True}),
+]
+for key, label, pal in GOWNS:
+    add(f"prom-dress-top-{key}", "shirt", f"Prom Dress Top - {label}",
+        f"Top half of the {label} prom gown: satin sweetheart bodice and waist sash. Wear it with the matching "
+        "Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay.", 8,
+        garment(S.gown_top, pal), pair=f"prom-dress-skirt-{key}", collection="Formal",
+        keywords=["prom dress", "gown", "formal", "wedding", "princess"])
+    add(f"prom-dress-skirt-{key}", "pants", f"Prom Dress Skirt - {label}",
+        f"Floor-length {label.lower()} satin gown skirt with flowing folds. Matches the {label} Prom Dress Top.", 8,
+        garment(P.gown_skirt, pal), pair=f"prom-dress-top-{key}", collection="Formal",
+        keywords=["prom dress", "gown", "formal", "wedding", "princess"])
+    outfit(f"Prom Dress - {label}", f"prom-dress-top-{key}", f"prom-dress-skirt-{key}")
+
+for key, label, base, piping in (("pink", "Pink", (246, 196, 210), WHITE),
+                                 ("lavender", "Lavender", (206, 190, 236), WHITE),
+                                 ("champagne", "Champagne", (238, 222, 196), (30, 30, 34)),
+                                 ("baby-blue", "Baby Blue", (180, 210, 240), WHITE)):
+    pal = {"base": base, "piping": piping, "slippers": WHITE if key != "champagne" else (246, 196, 210)}
+    add(f"satin-pj-shirt-{key}", "shirt", f"Satin Pajama Shirt - {label}",
+        f"Silky {label.lower()} button-up pajama shirt with contrast piping and a chest pocket. Matches the "
+        "Satin Pajama Pants.", 7, garment(S.pj_shirt, pal), pair=f"satin-pj-pants-{key}", collection="Sleepover",
+        keywords=["pajamas", "satin", "sleepover", "pjs", "matching set"])
+    add(f"satin-pj-pants-{key}", "pants", f"Satin Pajama Pants + Slippers - {label}",
+        f"Silky {label.lower()} pajama pants with piping, drawstring waist and fluffy slippers.", 7,
+        garment(P.pj_pants, pal), pair=f"satin-pj-shirt-{key}", collection="Sleepover",
+        keywords=["pajamas", "satin", "slippers", "sleepover", "matching set"])
+    outfit(f"Satin PJ Set - {label}", f"satin-pj-shirt-{key}", f"satin-pj-pants-{key}")
+
+for key, label, pal in (
+        ("light", "Light Denim", {"denim": (128, 164, 204), "tee": (250, 250, 250)}),
+        ("pink", "Pink Denim", {"denim": (240, 160, 190), "tee_stripes": [(250, 250, 250), (236, 110, 150)],
+                                "thread": WHITE}),
+        ("black", "Black Denim", {"denim": (44, 46, 52), "tee": (250, 250, 250), "thread": (150, 150, 156)})):
+    add(f"overall-top-{key}", "shirt", f"Overalls + Tee - {label}",
+        f"Cute {label.lower()} overall bib and straps with gold buttons over a tee. Wear with the matching "
+        "Overall Shorts.", 7, garment(S.overall_top, pal), pair=f"overall-shorts-{key}", collection="Y2K",
+        keywords=["overalls", "denim", "cute", "y2k", "matching set"])
+    add(f"overall-shorts-{key}", "pants", f"Overall Shorts + Sneakers - {label}",
+        f"{label} rolled-cuff shorts with crew socks and chunky sneakers. Bottom half of the overalls.", 7,
+        garment(P.overall_shorts, dict(pal, legwear="crew_socks", shoes="chunky")), pair=f"overall-top-{key}",
+        collection="Y2K", keywords=["overalls", "shorts", "denim", "sneakers"])
+    outfit(f"Overalls - {label}", f"overall-top-{key}", f"overall-shorts-{key}")
+
+for key, label, base, kicks in (("black", "Black", (26, 26, 30), WHITE_KICKS),
+                                ("grey", "Heather Grey", (150, 152, 158), WHITE_KICKS),
+                                ("baby-pink", "Baby Pink", (240, 180, 200), PINK_CHUNKY),
+                                ("mocha", "Mocha", (110, 80, 64), WHITE_KICKS)):
+    add(f"biker-shorts-{key}", "pants", f"Biker Shorts + Sneakers - {label}",
+        f"High-waisted {label.lower()} biker shorts with crew socks and chunky sneakers. Sporty clean girl fit.",
+        6, garment(P.biker_shorts, {"base": base, "legwear": "crew_socks", "shoes": "chunky", "sneakers": kicks}),
+        pair="crop-hoodie-baby-pink" if key != "baby-pink" else "crop-hoodie-white", collection="Alt",
+        keywords=["biker shorts", "sporty", "clean girl", "shorts", "sneakers"])
+
+for key, label, pal in (
+        ("khaki", "Khaki + Sneakers", {"base": (190, 168, 128), "shoes": "chunky", "legwear": "crew_socks"}),
+        ("black", "Black + Platform Boots", {"base": (34, 34, 38), "belt": "studded", "shoes": "platform_boots"}),
+        ("pink", "Pink + Chain", {"base": (246, 190, 206), "belt": "chain", "shoes": "chunky",
+                                  "sneakers": PINK_CHUNKY})):
+    add(f"cargo-skirt-{key}", "pants", f"Cargo Mini Skirt - {label}",
+        f"Y2K cargo mini skirt ({label.lower()}) with flap pockets and shoes included.", 7,
+        garment(P.cargo_skirt, pal), pair="tube-top-black" if key != "pink" else "tube-top-white",
+        collection="Baddie", keywords=["cargo skirt", "mini skirt", "y2k", "baddie"])
+
+for key, label, pal in (
+        ("leopard", "Leopard + Knee Boots", {"base": (214, 164, 98), "fabric": "leopard", "shoes": "knee_boots"}),
+        ("cow-print", "Cow Print + Sneakers", {"base": (250, 250, 248), "fabric": "cow", "shoes": "chunky",
+                                               "legwear": "crew_socks"}),
+        ("black-satin", "Black Satin + Knee Boots", {"base": (24, 24, 28), "fabric": "satin", "shoes": "knee_boots"}),
+        ("red", "Red + Tights", {"base": (196, 28, 48), "fabric": "rib", "legwear": "tights",
+                                 "shoes": "mary_janes"})):
+    add(f"mini-skirt-{key}", "pants", f"Bodycon Mini Skirt - {label}",
+        f"Fitted {label.split(' + ')[0].lower()} mini skirt with {label.split(' + ')[1].lower()}. Baddie night out.",
+        7, garment(P.mini_skirt, pal), pair="tube-top-leopard" if key == "black-satin" else "tube-top-black",
+        collection="Baddie", keywords=["mini skirt", "baddie", "bodycon", "y2k"])
+
+outfit("Baddie Set - Leopard", "tube-top-leopard", "mini-skirt-black-satin")
+outfit("Baddie Set - Cargo", "tube-top-black", "cargo-skirt-black")
+outfit("Sporty Fit", "crop-hoodie-baby-pink", "biker-shorts-grey")
+
+for key, label, pal in (
+        ("sunshine", "Sunshine", {"base": (255, 236, 150), "trim": WHITE, "graphic": "sunflower",
+                                  "text": "SUNSHINE", "ink": (214, 130, 20)}),
+        ("dreamy", "Dreamy", {"base": (34, 40, 82), "trim": (214, 200, 244), "graphic": "moon_stars",
+                              "text": "DREAMY", "ink": (240, 220, 140)}),
+        ("cloud-nine", "Cloud Nine", {"base": (190, 222, 250), "trim": WHITE, "graphic": "kawaii_cloud",
+                                      "text": "CLOUD NINE", "ink": (70, 110, 200)}),
+        ("lucky", "Lucky Ladybug", {"base": (250, 250, 250), "trim": (220, 40, 50), "graphic": "ladybug",
+                                    "text": "LUCKY", "ink": (220, 40, 50)})):
+    add(f"baby-tee-{key}", "shirt", f"Y2K Baby Tee - {label}",
+        f"Fitted cropped baby tee with contrast trims and a cute {label.lower()} graphic.", 6,
+        garment(S.baby_tee, pal), pair="biker-shorts-baby-pink" if key == "cloud-nine" else "flare-jeans-mid-wash",
+        collection="Y2K", keywords=["baby tee", "y2k", "crop top", "cute", "aesthetic"])
+
+# extra colourways of earlier designs
+for key, label, pal in (("cherry-red", "Cherry Red", {"base": (196, 28, 48), "bow": WHITE, "trim": WHITE}),
+                        ("sage", "Sage", {"base": (170, 188, 160), "bow": (250, 244, 232)})):
+    add(f"bow-cardigan-{key}", "shirt", f"Coquette Bow Cardigan - {label}",
+        f"Cute cropped {label.lower()} knit cardigan with satin bows down the front, lace trim and puff sleeves.",
+        8, garment(S.bow_cardigan, pal),
+        pair="ruffle-skirt-pink-gingham" if key == "sage" else "ruffle-skirt-black",
+        collection="Coquette", keywords=["coquette", "cardigan", "bow", "soft girl", "cute"])
+add("heart-sweater-white-red", "shirt", "Fuzzy Heart Sweater - White & Red",
+    "Oversized fuzzy mohair sweater with a big red knitted heart. Cozy soft girl essential.", 8,
+    garment(S.heart_sweater, {"base": (250, 250, 248), "heart": (214, 36, 64), "back_heart": True}),
+    pair="flare-jeans-mid-wash", collection="Cozy", keywords=["sweater", "heart", "fuzzy", "cozy", "soft girl"])
+add("milkmaid-top-cherry", "shirt", "Milkmaid Corset Top - Cherry Print",
+    "Cottagecore milkmaid top in cherry print with a sweetheart neckline, lace-up corset front, puff sleeves "
+    "and frilled hem.", 8,
+    garment(S.milkmaid_top, {"base": (252, 250, 246), "fabric": "print", "motif": "cherry", "spacing": (15, 15),
+                             "lace": (214, 28, 48)}),
+    pair="denim-skirt-light-wash", collection="Cottagecore", keywords=["milkmaid", "cottagecore", "cherry"])
+STRAW = {"base": (252, 236, 240), "fabric": "print", "motif": "strawberry", "spacing": (14, 14),
+         "tie": (232, 46, 64)}
+add("sundress-top-strawberry", "shirt", "Sundress Top - Strawberry",
+    "Top half of the Strawberry sundress: square neck, straps, smocked back and ribbon waist bow. Wear it with "
+    "the matching Sundress Skirt.", 7, garment(S.sundress_top, STRAW), pair="sundress-skirt-strawberry",
+    collection="Cottagecore", keywords=["sundress", "dress", "strawberry", "cottagecore"])
+add("sundress-skirt-strawberry", "pants", "Sundress Skirt - Strawberry",
+    "Flowy strawberry print midi skirt with a frilled hem and ballet flats. Matches the Strawberry Sundress Top.",
+    7, garment(P.sundress_skirt, dict(STRAW, shoes="ballet", shoe_color=(232, 46, 64), shoe_bow=(232, 46, 64))),
+    pair="sundress-top-strawberry", collection="Cottagecore", keywords=["sundress", "dress", "strawberry"])
+outfit("Sundress - Strawberry", "sundress-top-strawberry", "sundress-skirt-strawberry")
+for key, label, pal in (("red", "Red", {"base": (176, 20, 40), "lace": (196, 40, 60)}),
+                        ("lavender", "Lavender", {"base": (210, 196, 238), "lace": (240, 234, 252)})):
+    add(f"lace-cami-{key}", "shirt", f"Lace Trim Satin Cami - {label}",
+        f"Silky {label.lower()} satin cami top with lace trim, thin straps and a tiny bow.", 7,
+        garment(S.lace_cami, pal), pair="mini-skirt-black-satin" if key == "red" else "tulle-skirt-lavender",
+        collection="Coquette", keywords=["cami", "satin", "lace", "coquette", "y2k"])
+add("off-shoulder-top-pink", "shirt", "Off Shoulder Ruffle Crop Top - Pink",
+    "Ribbed pink off-the-shoulder crop top with a ruffled neckline, long sleeves and a gold heart necklace.", 7,
+    garment(S.off_shoulder_top, {"base": (240, 150, 180)}), pair="flare-jeans-light-wash", collection="Alt",
+    keywords=["off shoulder", "crop top", "baddie", "y2k"])
+add("crop-hoodie-sage", "shirt", "Cropped Hoodie - Sage",
+    "Trendy cropped sage hoodie with hood and drawstrings, finished with a ribbed hem above the waist.", 8,
+    garment(S.hoodie, {"base": (152, 172, 146), "print": (246, 246, 240)}, crop=True),
+    pair="biker-shorts-grey", collection="Cozy", keywords=["crop top", "cropped hoodie", "aesthetic"])
+
 # ------------------------------------------------------------------ classic T-shirts (decals)
 
 TEE_COPY = {
@@ -580,6 +793,11 @@ TEE_COPY = {
     "retro_sunset": ("Retro Sunset", "Synthwave sunset with neon grid."),
     "mountain_badge": ("Explore More Badge", "Sunset mountain badge."),
     "lightning_bolt": ("Lightning Bolt", "Glowing yellow lightning bolt."),
+    "rainbow": ("Rainbow", "Pastel rainbow with fluffy clouds."),
+    "moon_stars": ("Sleepy Moon", "Sleepy crescent moon with twinkling stars."),
+    "sunflower": ("Sunflower", "Bright sunny sunflower."),
+    "kawaii_cloud": ("Kawaii Cloud", "Smiling kawaii rain cloud."),
+    "ladybug": ("Lucky Ladybug", "Cute cartoon ladybug."),
 }
 for key in TEE_COPY:
     title, blurb = TEE_COPY[key]

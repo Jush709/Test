@@ -300,7 +300,7 @@ def gingham(size, color, ground=(255, 255, 255), check=6, offset=(0, 0)):
     return plaid(size, [(color, check), (ground, check)], offset=offset, twill=0.12)
 
 
-def leopard(size, base=(214, 164, 98), spot=(150, 98, 46), ring=(34, 24, 18), seed=0, density=0.010):
+def leopard(size, base=(214, 164, 98), spot=(150, 98, 46), ring=(34, 24, 18), seed=0, density=0.007):
     """Leopard rosettes: broken dark rings around darker centres."""
     w, h = size
     s = 3
@@ -309,13 +309,13 @@ def leopard(size, base=(214, 164, 98), spot=(150, 98, 46), ring=(34, 24, 18), se
     r = _rng(seed)
     for _ in range(int(w * h * density)):
         x, y = r.uniform(-4, w + 4) * s, r.uniform(-4, h + 4) * s
-        rx, ry = r.uniform(2.0, 3.4) * s, r.uniform(1.6, 2.8) * s
+        rx, ry = r.uniform(3.2, 5.0) * s, r.uniform(2.6, 4.0) * s
         d.ellipse([x - rx * 0.6, y - ry * 0.6, x + rx * 0.6, y + ry * 0.6], fill=rgba(spot))
         a0 = r.uniform(0, 360)
         for k in range(int(r.integers(2, 4))):
             start = a0 + k * 120 + r.uniform(-20, 20)
-            d.arc([x - rx, y - ry, x + rx, y + ry], start, start + r.uniform(60, 95), fill=rgba(ring),
-                  width=int(1.4 * s))
+            d.arc([x - rx, y - ry, x + rx, y + ry], start, start + r.uniform(70, 105), fill=rgba(ring),
+                  width=int(1.8 * s))
     out = img.resize(size, Image.LANCZOS)
     return to_image(to_array(out)[..., :3] + grain(size, 0.02, seed)[..., None])
 

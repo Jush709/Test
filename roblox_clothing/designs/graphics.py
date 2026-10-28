@@ -593,6 +593,153 @@ def mushroom():
     img.alpha_composite(lay)
     return _done(img)
 
+def rainbow():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    c, cy = 512, 640
+    bands = ["#FF6B8B", "#FFA857", "#FFE066", "#7EDC8A", "#6FB8FF", "#B48CFF"]
+    r0, bw = 430, 58
+    d.pieslice([c - r0 - 18, cy - r0 - 18, c + r0 + 18, cy + r0 + 18], 180, 360, fill=fx.rgba(INK))
+    for i, col in enumerate(bands):
+        r = r0 - i * bw
+        d.pieslice([c - r, cy - r, c + r, cy + r], 180, 360, fill=fx.rgba(col))
+    r = r0 - len(bands) * bw
+    d.pieslice([c - r + 18, cy - r + 18, c + r - 18, cy + r - 18], 180, 360, fill=(0, 0, 0, 0))
+    d.pieslice([c - r - 2, cy - r - 2, c + r + 2, cy + r + 2], 180, 360, outline=fx.rgba(INK), width=18)
+    d.rectangle([0, cy, S, S], fill=(0, 0, 0, 0))
+    for x, rr in ((c - 300, 120), (c + 300, 120)):
+        for dx, dy, k in ((-70, 10, 0.7), (0, -30, 1.0), (70, 10, 0.75)):
+            d.ellipse([x + dx - rr * k - 16, cy + dy - rr * k * 0.75 - 16, x + dx + rr * k + 16,
+                       cy + dy + rr * k * 0.75 + 16], fill=fx.rgba(INK))
+        for dx, dy, k in ((-70, 10, 0.7), (0, -30, 1.0), (70, 10, 0.75)):
+            d.ellipse([x + dx - rr * k, cy + dy - rr * k * 0.75, x + dx + rr * k, cy + dy + rr * k * 0.75],
+                      fill=fx.rgba("#FFFFFF"))
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def moon_stars():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    c = 470
+    d.ellipse([c - 330, c - 330, c + 330, c + 330], fill=fx.rgba(INK))
+    m = Image.new("L", (S, S))
+    md = ImageDraw.Draw(m)
+    md.ellipse([c - 312, c - 312, c + 312, c + 312], fill=255)
+    md.ellipse([c - 160, c - 400, c + 400, c + 160], fill=0)
+    moon = _masked(_vgrad((S, S), ["#FFF3B0", "#FFD86B", "#FFC14D"]), m)
+    lay2 = Image.new("RGBA", (S, S))
+    ImageDraw.Draw(lay2).ellipse([c - 168, c - 408, c + 408, c + 168], fill=(255, 255, 255, 255))
+    cut = lay2.getchannel("A").point(lambda v: 255 if v > 0 else 0)
+    shape = Image.fromarray(np.minimum(np.asarray(lay.getchannel("A")), 255 - np.asarray(cut)))
+    lay.putalpha(shape)
+    lay.alpha_composite(moon)
+    edge = Image.new("RGBA", (S, S))
+    ImageDraw.Draw(edge).ellipse([c - 168, c - 408, c + 408, c + 168], outline=fx.rgba(INK), width=18)
+    outer = Image.new("L", (S, S))
+    ImageDraw.Draw(outer).ellipse([c - 322, c - 322, c + 322, c + 322], fill=255)
+    edge.putalpha(Image.fromarray(np.minimum(np.asarray(edge.getchannel("A")), np.asarray(outer))))
+    lay.alpha_composite(edge)
+    d = ImageDraw.Draw(lay)
+    d.ellipse([c - 240, c + 20, c - 200, c + 60], fill=fx.rgba("#F2B84B"))
+    d.ellipse([c - 160, c + 150, c - 130, c + 180], fill=fx.rgba("#F2B84B"))
+    d.arc([c - 250, c - 60, c - 170, c - 10], 20, 160, fill=fx.rgba(INK), width=10)
+    d.ellipse([c - 290, c - 20, c - 250, c + 10], fill=fx.rgba("#FF9DB5", 220))
+    for x, y, sz in ((760, 260, 70), (830, 520, 46), (680, 720, 56), (240, 880, 30), (870, 820, 30)):
+        sparkle(d, x, y, sz + 12, INK)
+        sparkle(d, x, y, sz, "#FFF1A8")
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def sunflower():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    c = 512
+    for k in range(16):
+        petal = Image.new("RGBA", (S, S))
+        pd = ImageDraw.Draw(petal)
+        pd.ellipse([c - 74, c - 460, c + 74, c - 90], fill=fx.rgba(INK))
+        pd.ellipse([c - 58, c - 444, c + 58, c - 104], fill=fx.rgba("#FFC93C" if k % 2 else "#FFB320"))
+        lay.alpha_composite(petal.rotate(k * 22.5, center=(c, c), resample=Image.BICUBIC))
+    d = ImageDraw.Draw(lay)
+    d.ellipse([c - 200, c - 200, c + 200, c + 200], fill=fx.rgba(INK))
+    d.ellipse([c - 182, c - 182, c + 182, c + 182], fill=fx.rgba("#7A4A26"))
+    for r, n in ((140, 18), (95, 12), (50, 7)):
+        for i in range(n):
+            a = 2 * math.pi * i / n
+            x, y = c + r * math.cos(a), c + r * math.sin(a)
+            d.ellipse([x - 12, y - 12, x + 12, y + 12], fill=fx.rgba("#5A3418"))
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def kawaii_cloud():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    puffs = [(300, 560, 170), (512, 460, 230), (730, 560, 170), (420, 640, 150), (610, 640, 150)]
+    for x, y, r in puffs:
+        d.ellipse([x - r - 20, y - r - 20, x + r + 20, y + r + 20], fill=fx.rgba(INK))
+    m = Image.new("L", (S, S))
+    md = ImageDraw.Draw(m)
+    for x, y, r in puffs:
+        md.ellipse([x - r, y - r, x + r, y + r], fill=255)
+    lay.alpha_composite(_masked(_vgrad((S, S), ["#FFFFFF", "#EAF4FF", "#CFE6FF"]), m))
+    d = ImageDraw.Draw(lay)
+    for ex in (440, 584):
+        d.ellipse([ex - 22, 540, ex + 22, 590], fill=fx.rgba(INK))
+        d.ellipse([ex - 12, 548, ex, 562], fill=(255, 255, 255, 255))
+    d.arc([482, 570, 542, 626], 20, 160, fill=fx.rgba(INK), width=12)
+    for bx in (380, 644):
+        d.ellipse([bx - 32, 590, bx + 32, 620], fill=fx.rgba("#FF9DB5", 220))
+    for i, x in enumerate((360, 470, 580, 690)):
+        y0 = 800 + (i % 2) * 30
+        d.line([(x, y0), (x - 20, y0 + 70)], fill=fx.rgba("#7FB8FF"), width=20)
+    sparkle(d, 160, 260, 50, INK)
+    sparkle(d, 160, 260, 40, "#FFF1A8")
+    sparkle(d, 860, 300, 40, INK)
+    sparkle(d, 860, 300, 30, "#FFF1A8")
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
+def ladybug():
+    img, _ = _new()
+    lay = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(lay)
+    c = 512
+    d.ellipse([c - 170, 150, c + 170, 430], fill=fx.rgba(INK))
+    for sgn in (-1, 1):
+        d.line([(c + sgn * 60, 190), (c + sgn * 150, 90)], fill=fx.rgba(INK), width=18)
+        d.ellipse([c + sgn * 150 - 26, 64, c + sgn * 150 + 26, 116], fill=fx.rgba(INK))
+    d.ellipse([c - 360, 260, c + 360, 920], fill=fx.rgba(INK))
+    m = Image.new("L", (S, S))
+    ImageDraw.Draw(m).ellipse([c - 340, 280, c + 340, 900], fill=255)
+    shell = _masked(_vgrad((S, S), ["#FF5A5F", "#E8273A", "#B5182B"]), m)
+    sd = ImageDraw.Draw(shell)
+    sd.line([(c, 280), (c, 900)], fill=fx.rgba(INK), width=20)
+    for x, y, r in ((c - 170, 420, 60), (c + 170, 420, 60), (c - 210, 640, 70), (c + 210, 640, 70),
+                    (c - 90, 790, 50), (c + 90, 790, 50)):
+        sd.ellipse([x - r, y - r, x + r, y + r], fill=fx.rgba(INK))
+    shell.putalpha(Image.fromarray(np.minimum(np.asarray(shell.getchannel("A")), np.asarray(m))))
+    lay.alpha_composite(shell)
+    d = ImageDraw.Draw(lay)
+    d.ellipse([c - 250, 340, c - 170, 410], fill=(255, 255, 255, 150))
+    for ex in (c - 60, c + 60):
+        d.ellipse([ex - 22, 240, ex + 22, 290], fill=fx.rgba("#FFFFFF"))
+        d.ellipse([ex - 10, 254, ex + 6, 276], fill=fx.rgba(INK))
+    img.alpha_composite(_shadow(lay, (14, 16), 0.25))
+    img.alpha_composite(lay)
+    return _done(img)
+
+
 GRAPHICS = {
     "retro_sunset": retro_sunset,
     "pixel_heart": pixel_heart,
@@ -609,4 +756,9 @@ GRAPHICS = {
     "butterfly": butterfly,
     "angel_heart": angel_heart,
     "mushroom": mushroom,
+    "rainbow": rainbow,
+    "moon_stars": moon_stars,
+    "sunflower": sunflower,
+    "kawaii_cloud": kawaii_cloud,
+    "ladybug": ladybug,
 }

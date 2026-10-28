@@ -21,6 +21,10 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](pants/ruffle-skirt-pink.png) · [preview](previews/ruffle-skirt-pink.jpg) | Ruffle Mini Skirt + Lace Socks - Pink | Pants | 8 | Tiered pink ruffle mini skirt with lace trim, a waist bow, frilly socks and Mary Jane shoes with bows. |
 | [file](pants/ruffle-skirt-pink-gingham.png) · [preview](previews/ruffle-skirt-pink-gingham.jpg) | Ruffle Mini Skirt + Lace Socks - Pink Gingham | Pants | 8 | Tiered pink gingham ruffle mini skirt with lace trim, a waist bow, frilly socks and Mary Jane shoes with bows. |
 | [file](pants/ruffle-skirt-black.png) · [preview](previews/ruffle-skirt-black.jpg) | Ruffle Mini Skirt + Lace Socks - Black | Pants | 8 | Tiered black ruffle mini skirt with lace trim, a waist bow, frilly socks and Mary Jane shoes with bows. |
+| [file](shirts/bow-cardigan-cherry-red.png) · [preview](previews/bow-cardigan-cherry-red.jpg) | Coquette Bow Cardigan - Cherry Red | Shirt | 8 | Cute cropped cherry red knit cardigan with satin bows down the front, lace trim and puff sleeves. |
+| [file](shirts/bow-cardigan-sage.png) · [preview](previews/bow-cardigan-sage.jpg) | Coquette Bow Cardigan - Sage | Shirt | 8 | Cute cropped sage knit cardigan with satin bows down the front, lace trim and puff sleeves. |
+| [file](shirts/lace-cami-red.png) · [preview](previews/lace-cami-red.jpg) | Lace Trim Satin Cami - Red | Shirt | 7 | Silky red satin cami top with lace trim, thin straps and a tiny bow. |
+| [file](shirts/lace-cami-lavender.png) · [preview](previews/lace-cami-lavender.jpg) | Lace Trim Satin Cami - Lavender | Shirt | 7 | Silky lavender satin cami top with lace trim, thin straps and a tiny bow. |
 
 ## Y2K
 
@@ -41,6 +45,16 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](pants/flare-jeans-pink.png) · [preview](previews/flare-jeans-pink.jpg) | Low Rise Flare Jeans - Pink Denim | Pants | 8 | Y2K low rise flared jeans (pink denim) with faded wash, whiskers and stitched back pockets. |
 | [file](shirts/skater-layered-tee-white.png) · [preview](previews/skater-layered-tee-white.jpg) | Skater Layered Tee - White & Black | Shirt | 7 | Short sleeve graphic tee layered over striped long sleeves (white & black). Y2K skater girl. |
 | [file](shirts/skater-layered-tee-black.png) · [preview](previews/skater-layered-tee-black.jpg) | Skater Layered Tee - Black & Pink | Shirt | 7 | Short sleeve graphic tee layered over striped long sleeves (black & pink). Y2K skater girl. |
+| [file](shirts/overall-top-light.png) · [preview](previews/overall-top-light.jpg) | Overalls + Tee - Light Denim | Shirt | 7 | Cute light denim overall bib and straps with gold buttons over a tee. Wear with the matching Overall Shorts. |
+| [file](pants/overall-shorts-light.png) · [preview](previews/overall-shorts-light.jpg) | Overall Shorts + Sneakers - Light Denim | Pants | 7 | Light Denim rolled-cuff shorts with crew socks and chunky sneakers. Bottom half of the overalls. |
+| [file](shirts/overall-top-pink.png) · [preview](previews/overall-top-pink.jpg) | Overalls + Tee - Pink Denim | Shirt | 7 | Cute pink denim overall bib and straps with gold buttons over a tee. Wear with the matching Overall Shorts. |
+| [file](pants/overall-shorts-pink.png) · [preview](previews/overall-shorts-pink.jpg) | Overall Shorts + Sneakers - Pink Denim | Pants | 7 | Pink Denim rolled-cuff shorts with crew socks and chunky sneakers. Bottom half of the overalls. |
+| [file](shirts/overall-top-black.png) · [preview](previews/overall-top-black.jpg) | Overalls + Tee - Black Denim | Shirt | 7 | Cute black denim overall bib and straps with gold buttons over a tee. Wear with the matching Overall Shorts. |
+| [file](pants/overall-shorts-black.png) · [preview](previews/overall-shorts-black.jpg) | Overall Shorts + Sneakers - Black Denim | Pants | 7 | Black Denim rolled-cuff shorts with crew socks and chunky sneakers. Bottom half of the overalls. |
+| [file](shirts/baby-tee-sunshine.png) · [preview](previews/baby-tee-sunshine.jpg) | Y2K Baby Tee - Sunshine | Shirt | 6 | Fitted cropped baby tee with contrast trims and a cute sunshine graphic. |
+| [file](shirts/baby-tee-dreamy.png) · [preview](previews/baby-tee-dreamy.jpg) | Y2K Baby Tee - Dreamy | Shirt | 6 | Fitted cropped baby tee with contrast trims and a cute dreamy graphic. |
+| [file](shirts/baby-tee-cloud-nine.png) · [preview](previews/baby-tee-cloud-nine.jpg) | Y2K Baby Tee - Cloud Nine | Shirt | 6 | Fitted cropped baby tee with contrast trims and a cute cloud nine graphic. |
+| [file](shirts/baby-tee-lucky.png) · [preview](previews/baby-tee-lucky.jpg) | Y2K Baby Tee - Lucky Ladybug | Shirt | 6 | Fitted cropped baby tee with contrast trims and a cute lucky ladybug graphic. |
 
 ## Cottagecore
 
@@ -58,6 +72,9 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](pants/sundress-skirt-blue-gingham.png) · [preview](previews/sundress-skirt-blue-gingham.jpg) | Sundress Skirt - Blue Gingham | Pants | 7 | Flowy blue gingham midi skirt with a frilled hem and ballet flats. Matches the Blue Gingham Sundress Top. |
 | [file](shirts/sundress-top-cherry.png) · [preview](previews/sundress-top-cherry.jpg) | Sundress Top - Cherry Print | Shirt | 7 | Top half of the Cherry Print sundress: square neck, straps, smocked back and ribbon waist bow. Wear it with the matching Sundress Skirt for the full dress. |
 | [file](pants/sundress-skirt-cherry.png) · [preview](previews/sundress-skirt-cherry.jpg) | Sundress Skirt - Cherry Print | Pants | 7 | Flowy cherry print midi skirt with a frilled hem and ballet flats. Matches the Cherry Print Sundress Top. |
+| [file](shirts/milkmaid-top-cherry.png) · [preview](previews/milkmaid-top-cherry.jpg) | Milkmaid Corset Top - Cherry Print | Shirt | 8 | Cottagecore milkmaid top in cherry print with a sweetheart neckline, lace-up corset front, puff sleeves and frilled hem. |
+| [file](shirts/sundress-top-strawberry.png) · [preview](previews/sundress-top-strawberry.jpg) | Sundress Top - Strawberry | Shirt | 7 | Top half of the Strawberry sundress: square neck, straps, smocked back and ribbon waist bow. Wear it with the matching Sundress Skirt. |
+| [file](pants/sundress-skirt-strawberry.png) · [preview](previews/sundress-skirt-strawberry.jpg) | Sundress Skirt - Strawberry | Pants | 7 | Flowy strawberry print midi skirt with a frilled hem and ballet flats. Matches the Strawberry Sundress Top. |
 
 ## Cozy
 
@@ -97,6 +114,8 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](shirts/cropped-puffer-black.png) · [preview](previews/cropped-puffer-black.jpg) | Cropped Puffer Jacket - Black | Shirt | 10 | Glossy cropped black puffer jacket with stand collar, zip and elastic cuffs. Winter baddie. |
 | [file](pants/pajama-pants-pink-plaid.png) · [preview](previews/pajama-pants-pink-plaid.jpg) | Cozy Pajama Pants - Pink Plaid | Pants | 5 | Soft pink plaid pajama pants with a drawstring waist. Sleepover approved. |
 | [file](pants/pajama-pants-strawberry.png) · [preview](previews/pajama-pants-strawberry.jpg) | Cozy Pajama Pants - Strawberry | Pants | 5 | Soft strawberry pajama pants with a drawstring waist. Sleepover approved. |
+| [file](shirts/heart-sweater-white-red.png) · [preview](previews/heart-sweater-white-red.jpg) | Fuzzy Heart Sweater - White & Red | Shirt | 8 | Oversized fuzzy mohair sweater with a big red knitted heart. Cozy soft girl essential. |
+| [file](shirts/crop-hoodie-sage.png) · [preview](previews/crop-hoodie-sage.jpg) | Cropped Hoodie - Sage | Shirt | 8 | Trendy cropped sage hoodie with hood and drawstrings, finished with a ribbed hem above the waist. |
 
 ## Preppy
 
@@ -149,6 +168,11 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](pants/flare-leggings-baby-pink.png) · [preview](previews/flare-leggings-baby-pink.jpg) | Flare Leggings + Sneakers - Baby Pink | Pants | 7 | Stretchy baby pink flare leggings with a crossover waistband and chunky sneakers. Clean girl pilates fit. |
 | [file](pants/ripped-skinny-jeans-light.png) · [preview](previews/ripped-skinny-jeans-light.jpg) | Ripped Skinny Jeans - Light Wash | Pants | 8 | Slim light wash jeans with distressed knee rips, frayed threads and faded thighs. |
 | [file](pants/ripped-skinny-jeans-black.png) · [preview](previews/ripped-skinny-jeans-black.jpg) | Ripped Skinny Jeans - Black | Pants | 8 | Slim black jeans with distressed knee rips, frayed threads and faded thighs. |
+| [file](pants/biker-shorts-black.png) · [preview](previews/biker-shorts-black.jpg) | Biker Shorts + Sneakers - Black | Pants | 6 | High-waisted black biker shorts with crew socks and chunky sneakers. Sporty clean girl fit. |
+| [file](pants/biker-shorts-grey.png) · [preview](previews/biker-shorts-grey.jpg) | Biker Shorts + Sneakers - Heather Grey | Pants | 6 | High-waisted heather grey biker shorts with crew socks and chunky sneakers. Sporty clean girl fit. |
+| [file](pants/biker-shorts-baby-pink.png) · [preview](previews/biker-shorts-baby-pink.jpg) | Biker Shorts + Sneakers - Baby Pink | Pants | 6 | High-waisted baby pink biker shorts with crew socks and chunky sneakers. Sporty clean girl fit. |
+| [file](pants/biker-shorts-mocha.png) · [preview](previews/biker-shorts-mocha.jpg) | Biker Shorts + Sneakers - Mocha | Pants | 6 | High-waisted mocha biker shorts with crew socks and chunky sneakers. Sporty clean girl fit. |
+| [file](shirts/off-shoulder-top-pink.png) · [preview](previews/off-shoulder-top-pink.jpg) | Off Shoulder Ruffle Crop Top - Pink | Shirt | 7 | Ribbed pink off-the-shoulder crop top with a ruffled neckline, long sleeves and a gold heart necklace. |
 
 ## Denim
 
@@ -208,6 +232,81 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](shirts/scrubs-top-teal.png) · [preview](previews/scrubs-top-teal.jpg) | Medical Scrubs Top - Teal | Shirt | 6 | Teal V-neck scrubs top with chest pocket, pen and ID badge. For hospital and nurse roleplay. |
 | [file](pants/scrubs-pants-teal.png) · [preview](previews/scrubs-pants-teal.jpg) | Medical Scrubs Pants - Teal | Pants | 6 | Teal scrubs pants with drawstring waist, cargo pocket and white sneakers. |
 
+## Balletcore
+
+| Preview | Name | Type | Price | Description |
+|---|---|---|---|---|
+| [file](shirts/wrap-top-ballet-pink.png) · [preview](previews/wrap-top-ballet-pink.jpg) | Ballet Wrap Top - Ballet Pink | Shirt | 7 | Balletcore ballet pink wrap top with a crossover V neck, fitted long sleeves and a side tie bow. |
+| [file](shirts/wrap-top-black.png) · [preview](previews/wrap-top-black.jpg) | Ballet Wrap Top - Black | Shirt | 7 | Balletcore black wrap top with a crossover V neck, fitted long sleeves and a side tie bow. |
+| [file](shirts/wrap-top-cream.png) · [preview](previews/wrap-top-cream.jpg) | Ballet Wrap Top - Cream | Shirt | 7 | Balletcore cream wrap top with a crossover V neck, fitted long sleeves and a side tie bow. |
+| [file](shirts/wrap-top-lavender.png) · [preview](previews/wrap-top-lavender.jpg) | Ballet Wrap Top - Lavender | Shirt | 7 | Balletcore lavender wrap top with a crossover V neck, fitted long sleeves and a side tie bow. |
+| [file](shirts/shrug-cami-pink-white.png) · [preview](previews/shrug-cami-pink-white.jpg) | Fuzzy Shrug + Cami - Pink & White | Shirt | 8 | Cropped fuzzy bolero shrug over a lace-trim satin cami (pink & white). Balletcore and coquette. |
+| [file](shirts/shrug-cami-white-black.png) · [preview](previews/shrug-cami-white-black.jpg) | Fuzzy Shrug + Cami - White & Black | Shirt | 8 | Cropped fuzzy bolero shrug over a lace-trim satin cami (white & black). Balletcore and coquette. |
+| [file](shirts/shrug-cami-lavender.png) · [preview](previews/shrug-cami-lavender.jpg) | Fuzzy Shrug + Cami - Lavender | Shirt | 8 | Cropped fuzzy bolero shrug over a lace-trim satin cami (lavender). Balletcore and coquette. |
+| [file](pants/tulle-skirt-pink.png) · [preview](previews/tulle-skirt-pink.jpg) | Tulle Ballet Skirt - Ballet Pink | Pants | 8 | Layered sheer ballet pink tulle skirt with a satin ribbon bow and tights, plus ballet shoes. Balletcore dream. |
+| [file](pants/tulle-skirt-white.png) · [preview](previews/tulle-skirt-white.jpg) | Tulle Ballet Skirt - White | Pants | 8 | Layered sheer white tulle skirt with a satin ribbon bow, plus ballet shoes. Balletcore dream. |
+| [file](pants/tulle-skirt-black.png) · [preview](previews/tulle-skirt-black.jpg) | Tulle Ballet Skirt - Black | Pants | 8 | Layered sheer black tulle skirt with a satin ribbon bow and tights, plus ballet shoes. Balletcore dream. |
+| [file](pants/tulle-skirt-lavender.png) · [preview](previews/tulle-skirt-lavender.jpg) | Tulle Ballet Skirt - Lavender | Pants | 8 | Layered sheer lavender tulle skirt with a satin ribbon bow, plus ballet shoes. Balletcore dream. |
+
+## Baddie
+
+| Preview | Name | Type | Price | Description |
+|---|---|---|---|---|
+| [file](shirts/tube-top-black.png) · [preview](previews/tube-top-black.jpg) | Ruched Tube Top - Black | Shirt | 6 | Strapless ruched black tube top, cropped, with a gold ring at the centre. Baddie summer staple. |
+| [file](shirts/tube-top-white.png) · [preview](previews/tube-top-white.jpg) | Ruched Tube Top - White | Shirt | 6 | Strapless ruched white tube top, cropped, with a gold ring at the centre. Baddie summer staple. |
+| [file](shirts/tube-top-hot-pink.png) · [preview](previews/tube-top-hot-pink.jpg) | Ruched Tube Top - Hot Pink | Shirt | 6 | Strapless ruched hot pink tube top, cropped, with a bow at the centre. Baddie summer staple. |
+| [file](shirts/tube-top-leopard.png) · [preview](previews/tube-top-leopard.jpg) | Ruched Tube Top - Leopard | Shirt | 6 | Strapless ruched leopard tube top, cropped, with a gold ring at the centre. Baddie summer staple. |
+| [file](pants/cargo-skirt-khaki.png) · [preview](previews/cargo-skirt-khaki.jpg) | Cargo Mini Skirt - Khaki + Sneakers | Pants | 7 | Y2K cargo mini skirt (khaki + sneakers) with flap pockets and shoes included. |
+| [file](pants/cargo-skirt-black.png) · [preview](previews/cargo-skirt-black.jpg) | Cargo Mini Skirt - Black + Platform Boots | Pants | 7 | Y2K cargo mini skirt (black + platform boots) with flap pockets and shoes included. |
+| [file](pants/cargo-skirt-pink.png) · [preview](previews/cargo-skirt-pink.jpg) | Cargo Mini Skirt - Pink + Chain | Pants | 7 | Y2K cargo mini skirt (pink + chain) with flap pockets and shoes included. |
+| [file](pants/mini-skirt-leopard.png) · [preview](previews/mini-skirt-leopard.jpg) | Bodycon Mini Skirt - Leopard + Knee Boots | Pants | 7 | Fitted leopard mini skirt with knee boots. Baddie night out. |
+| [file](pants/mini-skirt-cow-print.png) · [preview](previews/mini-skirt-cow-print.jpg) | Bodycon Mini Skirt - Cow Print + Sneakers | Pants | 7 | Fitted cow print mini skirt with sneakers. Baddie night out. |
+| [file](pants/mini-skirt-black-satin.png) · [preview](previews/mini-skirt-black-satin.jpg) | Bodycon Mini Skirt - Black Satin + Knee Boots | Pants | 7 | Fitted black satin mini skirt with knee boots. Baddie night out. |
+| [file](pants/mini-skirt-red.png) · [preview](previews/mini-skirt-red.jpg) | Bodycon Mini Skirt - Red + Tights | Pants | 7 | Fitted red mini skirt with tights. Baddie night out. |
+
+## Cheer
+
+| Preview | Name | Type | Price | Description |
+|---|---|---|---|---|
+| [file](shirts/cheer-top-red.png) · [preview](previews/cheer-top-red.jpg) | Cheerleader Top - Red & White | Shirt | 7 | Red & White cheer uniform crop top with V neck, chevron stripes and the team name. For school and cheer roleplay. |
+| [file](pants/cheer-skirt-red.png) · [preview](previews/cheer-skirt-red.jpg) | Cheer Skirt + Sneakers - Red & White | Pants | 7 | Red & White pleated cheer skirt with striped hem, crew socks and white sneakers. |
+| [file](shirts/cheer-top-pink.png) · [preview](previews/cheer-top-pink.jpg) | Cheerleader Top - Pink & White | Shirt | 7 | Pink & White cheer uniform crop top with V neck, chevron stripes and the team name. For school and cheer roleplay. |
+| [file](pants/cheer-skirt-pink.png) · [preview](previews/cheer-skirt-pink.jpg) | Cheer Skirt + Sneakers - Pink & White | Pants | 7 | Pink & White pleated cheer skirt with striped hem, crew socks and white sneakers. |
+| [file](shirts/cheer-top-blue-gold.png) · [preview](previews/cheer-top-blue-gold.jpg) | Cheerleader Top - Blue & Gold | Shirt | 7 | Blue & Gold cheer uniform crop top with V neck, chevron stripes and the team name. For school and cheer roleplay. |
+| [file](pants/cheer-skirt-blue-gold.png) · [preview](previews/cheer-skirt-blue-gold.jpg) | Cheer Skirt + Sneakers - Blue & Gold | Pants | 7 | Blue & Gold pleated cheer skirt with striped hem, crew socks and white sneakers. |
+| [file](shirts/cheer-top-black-pink.png) · [preview](previews/cheer-top-black-pink.jpg) | Cheerleader Top - Black & Pink | Shirt | 7 | Black & Pink cheer uniform crop top with V neck, chevron stripes and the team name. For school and cheer roleplay. |
+| [file](pants/cheer-skirt-black-pink.png) · [preview](previews/cheer-skirt-black-pink.jpg) | Cheer Skirt + Sneakers - Black & Pink | Pants | 7 | Black & Pink pleated cheer skirt with striped hem, crew socks and white sneakers. |
+
+## Formal
+
+| Preview | Name | Type | Price | Description |
+|---|---|---|---|---|
+| [file](shirts/prom-dress-top-rose-pink.png) · [preview](previews/prom-dress-top-rose-pink.jpg) | Prom Dress Top - Rose Pink | Shirt | 8 | Top half of the Rose Pink prom gown: satin sweetheart bodice and waist sash. Wear it with the matching Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay. |
+| [file](pants/prom-dress-skirt-rose-pink.png) · [preview](previews/prom-dress-skirt-rose-pink.jpg) | Prom Dress Skirt - Rose Pink | Pants | 8 | Floor-length rose pink satin gown skirt with flowing folds. Matches the Rose Pink Prom Dress Top. |
+| [file](shirts/prom-dress-top-midnight-sparkle.png) · [preview](previews/prom-dress-top-midnight-sparkle.jpg) | Prom Dress Top - Midnight Sparkle | Shirt | 8 | Top half of the Midnight Sparkle prom gown: satin sweetheart bodice and waist sash. Wear it with the matching Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay. |
+| [file](pants/prom-dress-skirt-midnight-sparkle.png) · [preview](previews/prom-dress-skirt-midnight-sparkle.jpg) | Prom Dress Skirt - Midnight Sparkle | Pants | 8 | Floor-length midnight sparkle satin gown skirt with flowing folds. Matches the Midnight Sparkle Prom Dress Top. |
+| [file](shirts/prom-dress-top-red.png) · [preview](previews/prom-dress-top-red.jpg) | Prom Dress Top - Red | Shirt | 8 | Top half of the Red prom gown: satin sweetheart bodice and waist sash. Wear it with the matching Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay. |
+| [file](pants/prom-dress-skirt-red.png) · [preview](previews/prom-dress-skirt-red.jpg) | Prom Dress Skirt - Red | Pants | 8 | Floor-length red satin gown skirt with flowing folds. Matches the Red Prom Dress Top. |
+| [file](shirts/prom-dress-top-bridal-white.png) · [preview](previews/prom-dress-top-bridal-white.jpg) | Prom Dress Top - Bridal White | Shirt | 8 | Top half of the Bridal White prom gown: satin sweetheart bodice and waist sash. Wear it with the matching Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay. |
+| [file](pants/prom-dress-skirt-bridal-white.png) · [preview](previews/prom-dress-skirt-bridal-white.jpg) | Prom Dress Skirt - Bridal White | Pants | 8 | Floor-length bridal white satin gown skirt with flowing folds. Matches the Bridal White Prom Dress Top. |
+| [file](shirts/prom-dress-top-lavender.png) · [preview](previews/prom-dress-top-lavender.jpg) | Prom Dress Top - Lavender | Shirt | 8 | Top half of the Lavender prom gown: satin sweetheart bodice and waist sash. Wear it with the matching Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay. |
+| [file](pants/prom-dress-skirt-lavender.png) · [preview](previews/prom-dress-skirt-lavender.jpg) | Prom Dress Skirt - Lavender | Pants | 8 | Floor-length lavender satin gown skirt with flowing folds. Matches the Lavender Prom Dress Top. |
+| [file](shirts/prom-dress-top-black-sparkle.png) · [preview](previews/prom-dress-top-black-sparkle.jpg) | Prom Dress Top - Black Sparkle | Shirt | 8 | Top half of the Black Sparkle prom gown: satin sweetheart bodice and waist sash. Wear it with the matching Prom Dress Skirt for a floor-length gown. Prom, wedding and royal roleplay. |
+| [file](pants/prom-dress-skirt-black-sparkle.png) · [preview](previews/prom-dress-skirt-black-sparkle.jpg) | Prom Dress Skirt - Black Sparkle | Pants | 8 | Floor-length black sparkle satin gown skirt with flowing folds. Matches the Black Sparkle Prom Dress Top. |
+
+## Sleepover
+
+| Preview | Name | Type | Price | Description |
+|---|---|---|---|---|
+| [file](shirts/satin-pj-shirt-pink.png) · [preview](previews/satin-pj-shirt-pink.jpg) | Satin Pajama Shirt - Pink | Shirt | 7 | Silky pink button-up pajama shirt with contrast piping and a chest pocket. Matches the Satin Pajama Pants. |
+| [file](pants/satin-pj-pants-pink.png) · [preview](previews/satin-pj-pants-pink.jpg) | Satin Pajama Pants + Slippers - Pink | Pants | 7 | Silky pink pajama pants with piping, drawstring waist and fluffy slippers. |
+| [file](shirts/satin-pj-shirt-lavender.png) · [preview](previews/satin-pj-shirt-lavender.jpg) | Satin Pajama Shirt - Lavender | Shirt | 7 | Silky lavender button-up pajama shirt with contrast piping and a chest pocket. Matches the Satin Pajama Pants. |
+| [file](pants/satin-pj-pants-lavender.png) · [preview](previews/satin-pj-pants-lavender.jpg) | Satin Pajama Pants + Slippers - Lavender | Pants | 7 | Silky lavender pajama pants with piping, drawstring waist and fluffy slippers. |
+| [file](shirts/satin-pj-shirt-champagne.png) · [preview](previews/satin-pj-shirt-champagne.jpg) | Satin Pajama Shirt - Champagne | Shirt | 7 | Silky champagne button-up pajama shirt with contrast piping and a chest pocket. Matches the Satin Pajama Pants. |
+| [file](pants/satin-pj-pants-champagne.png) · [preview](previews/satin-pj-pants-champagne.jpg) | Satin Pajama Pants + Slippers - Champagne | Pants | 7 | Silky champagne pajama pants with piping, drawstring waist and fluffy slippers. |
+| [file](shirts/satin-pj-shirt-baby-blue.png) · [preview](previews/satin-pj-shirt-baby-blue.jpg) | Satin Pajama Shirt - Baby Blue | Shirt | 7 | Silky baby blue button-up pajama shirt with contrast piping and a chest pocket. Matches the Satin Pajama Pants. |
+| [file](pants/satin-pj-pants-baby-blue.png) · [preview](previews/satin-pj-pants-baby-blue.jpg) | Satin Pajama Pants + Slippers - Baby Blue | Pants | 7 | Silky baby blue pajama pants with piping, drawstring waist and fluffy slippers. |
+
 ## T-Shirts
 
 | Preview | Name | Type | Price | Description |
@@ -227,3 +326,8 @@ Copy the name and description when you upload each file. Prices are suggestions.
 | [file](tshirts/tshirt-retro-sunset.png) · [preview](previews/tshirt-retro-sunset.jpg) | Retro Sunset T-Shirt | T-Shirt | 5 | Synthwave sunset with neon grid. Transparent background, so it layers over any shirt or your avatar's body. |
 | [file](tshirts/tshirt-mountain-badge.png) · [preview](previews/tshirt-mountain-badge.jpg) | Explore More Badge T-Shirt | T-Shirt | 5 | Sunset mountain badge. Transparent background, so it layers over any shirt or your avatar's body. |
 | [file](tshirts/tshirt-lightning-bolt.png) · [preview](previews/tshirt-lightning-bolt.jpg) | Lightning Bolt T-Shirt | T-Shirt | 5 | Glowing yellow lightning bolt. Transparent background, so it layers over any shirt or your avatar's body. |
+| [file](tshirts/tshirt-rainbow.png) · [preview](previews/tshirt-rainbow.jpg) | Rainbow T-Shirt | T-Shirt | 5 | Pastel rainbow with fluffy clouds. Transparent background, so it layers over any shirt or your avatar's body. |
+| [file](tshirts/tshirt-moon-stars.png) · [preview](previews/tshirt-moon-stars.jpg) | Sleepy Moon T-Shirt | T-Shirt | 5 | Sleepy crescent moon with twinkling stars. Transparent background, so it layers over any shirt or your avatar's body. |
+| [file](tshirts/tshirt-sunflower.png) · [preview](previews/tshirt-sunflower.jpg) | Sunflower T-Shirt | T-Shirt | 5 | Bright sunny sunflower. Transparent background, so it layers over any shirt or your avatar's body. |
+| [file](tshirts/tshirt-kawaii-cloud.png) · [preview](previews/tshirt-kawaii-cloud.jpg) | Kawaii Cloud T-Shirt | T-Shirt | 5 | Smiling kawaii rain cloud. Transparent background, so it layers over any shirt or your avatar's body. |
+| [file](tshirts/tshirt-ladybug.png) · [preview](previews/tshirt-ladybug.jpg) | Lucky Ladybug T-Shirt | T-Shirt | 5 | Cute cartoon ladybug. Transparent background, so it layers over any shirt or your avatar's body. |
