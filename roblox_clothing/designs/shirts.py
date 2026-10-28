@@ -1,0 +1,690 @@
+"""Shirt designs. Each function takes a colourway dict and the brand name and
+returns a finished Garment."""
+
+import numpy as np
+from PIL import Image, ImageDraw
+
+from .. import details as dt
+from .. import fx
+from ..garment import over
+from . import common as c
+from .graphics import GRAPHICS
+
+
+def hoodie(p, brand, crop=False, zip_up=False):
+    base = p["base"]
+    rib = p.get("rib", fx.tone(base, 0.93))
+    tex = c.tex_fabric(base, p.get("grain", 0.022))
+    g = c.shirt(tex, "long", length=86 if crop else 128)
+    F, B = g.torso.faces["F"], g.torso.faces["B"]
+    c.hem_band(g, rib, 8 if crop else 10)
+    c.cuffs(g, rib, 9)
+
+    if zip_up:
+        for side in (0, 1):
+            pts = [(20, 82), (30, 108)]
+            pts = c.mirror_pts(pts) if side else pts
+            d = ImageDraw.Draw(F)
+            d.line(pts, fill=fx.rgba(fx.tone(base, 0.55)), width=2)
+            dt.stitch(d, [(x + (2 if not side else -2), y) for x, y in pts], fx.rgba(fx.tone(base, 0.8)))
+    elif not crop:
+        pk = [(34, 72), (94, 72), (104, 96), (104, 118), (24, 118), (24, 96)]
+        lay = dt.textured_polygon(F.size, pk, tex(F.size, 9))
+        d = ImageDraw.Draw(lay)
+        d.line([pk[0], pk[1]], fill=fx.rgba(fx.tone(base, 0.75)), width=1)
+        dt.stitch(d, [(35, 75), (93, 75)], fx.rgba(fx.tone(base, 0.78)))
+        for a, b in ((pk[1], pk[2]), (pk[0], pk[5])):
+            d.line([a, b], fill=fx.rgba(fx.tone(base, 0.4)), width=2)
+            d.line([(a[0] + (1 if a[0] < 64 else -1), a[1] + 1), (b[0] + (1 if b[0] < 64 else -1), b[1])],
+                   fill=fx.rgba(fx.tone(base, 1.25), 150), width=1)
+        dt.place(F, lay, (0, 1, 1.2, 0.35))
+
+    if p.get("print") and zip_up:
+        dt.text(F, brand, (101, 48), 7, p["print"], style="black", spacing=1)
+    elif p.get("print"):
+        dt.text(F, brand, (64, 62 if not crop else 60), 12, p["print"], style="black", spacing=1)
+    if p.get("back_print"):
+        dt.text(B, brand, (64, 66), 18, p["back_print"], style="black", spacing=2)
+        dt.text(B, p.get("back_sub", "WORLDWIDE"), (64, 80), 7, p["back_print"], style="bold", spacing=2)
+
+    c.hood(g, tex, base)
+    c.finish(g, p.get("shade", 0.85))
+    if zip_up:
+        dt.zipper(F, 64, 14, g.length, base, pull_y=18)
+    dt.drawstrings(F, (52, 76), 19, 24 if crop else 28, p.get("string", fx.tone(base, 1.3)),
+                   tip=p.get("tip", (210, 210, 214)))
+    return g
+
+
+def varsity(p, brand):
+    body, sleeve, rib, stripe = p["body"], p["sleeve"], p["rib"], p["stripe"]
+    wool = c.tex_fabric(body, 0.02)
+    leather = c.tex_smooth(sleeve, 0.01, 0.06)
+    g = c.shirt(wool, "long", sleeve_tex=leather)
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+
+    def striped_rib(img, y0, y1):
+        dt.rib_band(img, y0, y1, rib)
+        d = ImageDraw.Draw(img)
+        h = y1 - y0
+        for yy in (y0 + h * 0.3, y0 + h * 0.62):
+            d.rectangle([0, int(yy), img.width, int(yy) + 1], fill=fx.rgba(stripe))
+
+    for img in c.sides(T):
+        striped_rib(img, 116, 128)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            striped_rib(img, 96, 108)
+
+    # ribbed V collar
+    collar = [(42, 0), (86, 0), (64, 30)]
+    lay = dt.polygon_layer(F.size, [(34, 0), (94, 0), (64, 38)], rib)
+    d = ImageDraw.Draw(lay)
+    d.line([(38, 0), (64, 34), (90, 0)], fill=fx.rgba(stripe), width=2)
+    dt.place(F, lay, (0, 1, 1.2, 0.5))
+    fx.cut(F, c.mask_from(F.size, lambda dd: dd.polygon(collar, fill=255)))
+    blay = Image.new("RGBA", B.size)
+    ImageDraw.Draw(blay).rectangle([30, 0, 98, 7], fill=fx.rgba(rib))
+    ImageDraw.Draw(blay).line([(30, 4), (98, 4)], fill=fx.rgba(stripe), width=1)
+    dt.place(B, blay)
+
+    # leather welt pockets
+    for pts in ([(14, 76), (22, 74), (28, 100), (20, 102)],):
+        for poly in (pts, c.mirror_pts(pts)):
+            dt.place(F, dt.polygon_layer(F.size, poly, sleeve, fx.tone(sleeve, 0.7)), (0, 1, 1, 0.4))
+
+    d = ImageDraw.Draw(F)
+    d.line([(64, 36), (64, 116)], fill=fx.rgba(fx.tone(body, 0.6)), width=1)
+    # chenille letter patch on the wearer's left chest
+    dt.text(F, brand[0], (94, 54), 30, stripe, style="black", stroke=3, stroke_color=p.get("letter_edge", sleeve),
+            shadow=(0, 2, 1.2, 0.55))
+    dt.arc_text(B, brand, 64, 104, 54, 16, stripe, stroke=2, stroke_color=p.get("letter_edge", sleeve), spread=12)
+    dt.text(B, p.get("back_number", "26"), (64, 80), 26, stripe, style="black", stroke=2,
+            stroke_color=p.get("letter_edge", sleeve), shadow=(0, 2, 1.2, 0.55))
+    c.finish(g, 0.8)
+    for limb in g.limbs:
+        for f in ("F", c.OUTER[limb.name]):
+            c.sheen(limb.faces[f], 18, 28, 0.22)
+    for y in range(44, 112, 14):
+        dt.button(F, 64, y, 2.2, p.get("snap", stripe), holes=False)
+    return g
+
+
+def flannel_open(p, brand):
+    tex = c.tex_plaid(p["sett"])
+    tee = p.get("tee", (242, 242, 240))
+    g = c.shirt(tex, "long")
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    # open front showing a tee
+    panel = c.tex_fabric(tee, 0.015)(F.size)
+    panel.putalpha(c.mask_from(F.size, lambda d: d.polygon([(44, 0), (84, 0), (88, 128), (40, 128)], fill=255)))
+    over(F, panel)
+    neck = c.mask_from(F.size, lambda d: d.ellipse([48, -9, 80, 9], fill=255))
+    trim = Image.new("RGBA", F.size, fx.rgba(fx.tone(tee, 0.9)))
+    trim.putalpha(c.mask_from(F.size, lambda d: d.ellipse([45, -12, 83, 12], fill=255)))
+    over(F, trim)
+    fx.cut(F, neck)
+    if p.get("tee_print"):
+        dt.paste_graphic(F, GRAPHICS[p["tee_print"]](), (64, 60), 34)
+    # flannel front edges + placket, casting a shadow on the tee
+    for side in (0, 1):
+        edge = [(0, 0), (44, 0), (40, 128), (0, 128)] if not side else [(84, 0), (128, 0), (128, 128), (88, 128)]
+        lay = dt.textured_polygon(F.size, edge, tex(F.size, 0))
+        d = ImageDraw.Draw(lay)
+        x_top, x_bot = (44, 40) if not side else (84, 88)
+        d.line([(x_top, 0), (x_bot, 128)], fill=fx.rgba((30, 30, 30), 150), width=1)
+        dt.stitch(d, [(x_top + (-5 if not side else 5), 6), (x_bot + (-5 if not side else 5), 128)],
+                  fx.rgba((240, 240, 240), 120))
+        dt.place(F, lay, ((2 if not side else -2), 0, 2.0, 0.5))
+    # collar points lying open
+    for side in (0, 1):
+        pts = [(26, 0), (46, 0), (44, 20), (36, 12)]
+        pts = c.mirror_pts(pts) if side else pts
+        lay = dt.textured_polygon(F.size, pts, tex(F.size, 0))
+        ImageDraw.Draw(lay).line(pts + [pts[0]], fill=fx.rgba((20, 20, 20), 120))
+        dt.place(F, lay, (0, 2, 1.2, 0.5))
+    for box in ((12, 30, 34, 52), (94, 30, 116, 52)):
+        dt.pocket(F, box, p["sett"][0][0], texture=tex(F.size, 3), flap=7,
+                  button_color=p.get("button", (235, 232, 225)))
+    # back yoke and collar
+    d = ImageDraw.Draw(B)
+    d.line([(0, 22), (128, 22)], fill=fx.rgba((20, 20, 20), 120))
+    dt.stitch(d, [(0, 24), (128, 24)], fx.rgba((240, 240, 240), 100))
+    lay = dt.textured_polygon(B.size, [(30, 0), (98, 0), (96, 7), (32, 7)], tex(B.size, 4))
+    dt.place(B, lay, (0, 1, 1.0, 0.5))
+    # cuffs with a button on the outer side
+    for limb in g.limbs:
+        for f in limb.sides:
+            img = limb.faces[f]
+            d = ImageDraw.Draw(img)
+            d.line([(0, 98), (64, 98)], fill=fx.rgba((20, 20, 20), 140))
+            dt.stitch(d, [(0, 100), (64, 100)], fx.rgba((240, 240, 240), 100))
+    c.finish(g, 0.75)
+    for limb in g.limbs:
+        dt.button(limb.faces[c.OUTER[limb.name]], 32, 103, 1.8, p.get("button", (235, 232, 225)), holes=False)
+    for y in range(14, 124, 18):
+        dt.button(F, 36, y, 1.8, p.get("button", (235, 232, 225)), holes=False)
+    return g
+
+
+def suit(p, brand, neckwear="bow", crest=False):
+    jacket, shirt_c = p["jacket"], p.get("shirt", (246, 246, 244))
+    lapel_c = p.get("lapel", fx.tone(jacket, 1.1 if sum(fx.rgb(jacket)) < 400 else 0.94))
+    tex = c.tex_smooth(jacket, 0.012, 0.04)
+    g = c.shirt(tex, 100)
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    shirt_tex = c.tex_fabric(shirt_c, 0.01)
+    # shirt V and neckwear
+    vee = [(40, 0), (88, 0), (64, 72)]
+    lay = dt.textured_polygon(F.size, vee, shirt_tex(F.size))
+    d = ImageDraw.Draw(lay)
+    if neckwear == "bow":
+        for y in (24, 34, 44, 54):
+            dt.button(lay, 64, y, 1.4, (40, 40, 44), holes=False)
+        d.line([(60, 14), (58, 66)], fill=fx.rgba(fx.tone(shirt_c, 0.85)))
+        d.line([(68, 14), (70, 66)], fill=fx.rgba(fx.tone(shirt_c, 0.85)))
+    for side in (0, 1):
+        pts = [(50, 0), (64, 6), (58, 14)]
+        d.polygon(c.mirror_pts(pts) if side else pts, fill=fx.rgba(fx.tone(shirt_c, 0.92)),
+                  outline=fx.rgba(fx.tone(shirt_c, 0.75)))
+    over(F, lay)
+    nw = p.get("neckwear", (20, 20, 22))
+    if neckwear == "bow":
+        bow = Image.new("RGBA", F.size)
+        bd = ImageDraw.Draw(bow)
+        bd.polygon([(50, 6), (64, 11), (50, 17)], fill=fx.rgba(nw))
+        bd.polygon([(78, 6), (64, 11), (78, 17)], fill=fx.rgba(nw))
+        bd.rounded_rectangle([61, 7, 67, 15], radius=2, fill=fx.rgba(fx.tone(nw, 1.15)))
+        dt.place(F, bow, (0, 1, 0.8, 0.5))
+    else:
+        tie = Image.new("RGBA", F.size)
+        td = ImageDraw.Draw(tie)
+        td.polygon([(60, 8), (68, 8), (66, 15), (62, 15)], fill=fx.rgba(nw))
+        td.polygon([(62, 15), (66, 15), (71, 62), (64, 70), (57, 62)], fill=fx.rgba(nw))
+        if p.get("tie_stripe"):
+            for y in range(20, 66, 7):
+                td.line([(56, y + 4), (72, y - 4)], fill=fx.rgba(p["tie_stripe"]), width=2)
+            tie.putalpha(Image.fromarray(np.minimum(np.asarray(tie.getchannel("A")), np.asarray(
+                c.mask_from(F.size, lambda dd: dd.polygon([(60, 8), (68, 8), (66, 15), (71, 62), (64, 70), (57, 62),
+                                                          (62, 15)], fill=255))))))
+        dt.place(F, tie, (1, 1, 0.8, 0.5))
+    # lapels
+    for side in (0, 1):
+        pts = [(40, 0), (30, 0), (24, 30), (31, 30), (28, 36), (63, 74)]
+        pts = c.mirror_pts(pts) if side else pts
+        lay = dt.textured_polygon(F.size, pts, c.tex_smooth(lapel_c, 0.006, 0.02)(F.size))
+        ImageDraw.Draw(lay).line(pts + [pts[0]], fill=fx.rgba(fx.tone(lapel_c, 0.55)), width=1)
+        if p.get("piping"):
+            ImageDraw.Draw(lay).line(pts[1:], fill=fx.rgba(p["piping"]), width=1)
+        dt.place(F, lay, ((-1 if side else 1), 1, 1.2, 0.6))
+    d = ImageDraw.Draw(F)
+    d.line([(64, 74), (60, 128)], fill=fx.rgba(fx.tone(jacket, 0.5)), width=1)
+    for box in ((12, 98, 42, 104), (86, 98, 116, 104)):
+        lay = Image.new("RGBA", F.size)
+        ImageDraw.Draw(lay).rectangle(box, fill=fx.rgba(fx.tone(jacket, 1.04)), outline=fx.rgba(fx.tone(jacket, 0.55)))
+        dt.place(F, lay, (0, 1, 0.8, 0.5))
+    d.line([(88, 44), (108, 42)], fill=fx.rgba(fx.tone(jacket, 0.5)), width=1)
+    if crest:
+        sh = [(92, 30), (110, 30), (110, 44), (101, 52), (92, 44)]
+        lay = dt.polygon_layer(F.size, sh, p["crest"], fx.tone(p["crest"], 0.6))
+        ImageDraw.Draw(lay).text((101, 40), brand[0], font=dt.font(10, "serif"),
+                                 fill=fx.rgba(p.get("piping", (240, 210, 120))), anchor="mm")
+        dt.place(F, lay, (0, 1, 0.8, 0.5))
+    else:
+        sq = Image.new("RGBA", F.size)
+        ImageDraw.Draw(sq).polygon([(92, 43), (95, 37), (98, 41), (101, 36), (104, 41), (106, 43)],
+                                   fill=fx.rgba(p.get("pocket_square", shirt_c)))
+        dt.place(F, sq, (0, 1, 0.6, 0.4))
+    # back: centre seam and vent
+    d = ImageDraw.Draw(B)
+    d.line([(64, 8), (64, 128)], fill=fx.rgba(fx.tone(jacket, 0.6)), width=1)
+    d.line([(65, 104), (65, 128)], fill=fx.rgba(fx.tone(jacket, 0.45)), width=1)
+    lay = dt.textured_polygon(B.size, [(30, 0), (98, 0), (96, 8), (32, 8)], c.tex_smooth(lapel_c)(B.size))
+    dt.place(B, lay, (0, 1, 1.0, 0.5))
+    # shirt cuffs below the jacket sleeves
+    for limb in g.limbs:
+        for f in limb.sides:
+            img = limb.faces[f]
+            cuff = shirt_tex((64, 8))
+            over(img, cuff, (0, 100))
+            ImageDraw.Draw(img).line([(0, 100), (64, 100)], fill=fx.rgba(fx.tone(shirt_c, 0.6)))
+    c.finish(g, 0.7, folds=0.8)
+    for limb in g.limbs:
+        out = limb.faces[c.OUTER[limb.name]]
+        for i in range(3):
+            dt.button(out, 26 + i * 6, 95, 1.4, p.get("buttons", fx.tone(jacket, 0.6)), holes=False)
+    buttons = (80,) if neckwear == "bow" else (80, 96)
+    for y in buttons:
+        dt.button(F, 64, y, 2.4, p.get("buttons", fx.tone(jacket, 0.6)))
+    return g
+
+
+def denim_jacket(p, brand):
+    tex = c.tex_denim(p["denim"])
+    thread = p.get("thread", (214, 150, 70))
+    g = c.shirt(tex, "long")
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    for img in c.sides(T) + [s for limb in g.limbs for s in c.sides(limb)]:
+        c.fade(img, [(8, 20, img.width - 8, 90)], 0.18, 12)
+    ink = fx.rgba(fx.tone(p["denim"], 0.55), 220)
+    st = fx.rgba(thread, 230)
+
+    def dbl(d, pts, off=(0, 2)):
+        d.line(pts, fill=ink)
+        dt.stitch(d, [(x + off[0], y + off[1]) for x, y in pts], st, 2, 2)
+        dt.stitch(d, [(x - off[0], y - off[1] + 4 * (off[1] != 0)) for x, y in pts], st, 2, 2)
+
+    d = ImageDraw.Draw(F)
+    dbl(d, [(0, 28), (128, 28)])
+    for x in (30, 98):
+        dbl(d, [(x, 56), (x, 114)], (2, 0))
+    d.line([(64, 0), (64, 114)], fill=ink)
+    dt.stitch(d, [(68, 4), (68, 114)], st, 2, 2)
+    for box in ((32, 32, 54, 52), (74, 32, 96, 52)):
+        dt.pocket(F, box, p["denim"], stitch_color=thread, texture=tex(F.size, 1), flap=8,
+                  button_color=p.get("button", (176, 116, 60)))
+    collar_c = p.get("collar")
+    ctex = c.tex_fabric(collar_c, 0.06, 0.2) if collar_c else tex
+    for side in (0, 1):
+        pts = [(30, 0), (60, 0), (58, 14), (40, 22)]
+        pts = c.mirror_pts(pts) if side else pts
+        lay = dt.textured_polygon(F.size, pts, ctex(F.size, 2))
+        ImageDraw.Draw(lay).line(pts + [pts[0]], fill=ink if not collar_c else fx.rgba(fx.tone(collar_c, 0.75)))
+        dt.place(F, lay, (0, 2, 1.4, 0.5))
+    for img in c.sides(T):
+        band = tex((img.width, 14), 3)
+        over(img, band, (0, 114))
+        dd = ImageDraw.Draw(img)
+        dd.line([(0, 114), (img.width, 114)], fill=ink)
+        dt.stitch(dd, [(0, 117), (img.width, 117)], st, 2, 2)
+        dt.stitch(dd, [(0, 125), (img.width, 125)], st, 2, 2)
+    d = ImageDraw.Draw(B)
+    dbl(d, [(0, 26), (64, 42), (128, 26)])
+    for x in (34, 94):
+        dbl(d, [(x, 38 if x < 64 else 38), (x, 114)], (2, 0))
+    if collar_c:
+        lay = dt.textured_polygon(B.size, [(26, 0), (102, 0), (98, 10), (30, 10)], ctex(B.size, 5))
+        dt.place(B, lay, (0, 1, 1.0, 0.5))
+    for limb in g.limbs:
+        for f in limb.sides:
+            img = limb.faces[f]
+            dd = ImageDraw.Draw(img)
+            dd.line([(0, 96), (64, 96)], fill=ink)
+            dt.stitch(dd, [(0, 99), (64, 99)], st, 2, 2)
+        dd = ImageDraw.Draw(limb.faces[c.OUTER[limb.name]])
+        dbl(dd, [(32, 0), (32, 96)], (2, 0))
+    c.finish(g, 0.8)
+    for y in (10, 40, 62, 84, 104, 120):
+        dt.button(F, 64, y, 2.2, p.get("button", (176, 116, 60)))
+    for limb in g.limbs:
+        dt.button(limb.faces[c.OUTER[limb.name]], 32, 102, 2.0, p.get("button", (176, 116, 60)))
+    return g
+
+
+def soccer_jersey(p, brand):
+    base, accent, text_c = p["base"], p["accent"], p.get("text", (255, 255, 255))
+    tex = c.tex_mesh(base)
+    if p.get("pinstripe"):
+        stripe_tex = c.tex_stripes([base, p["pinstripe"]], [10, 3], vertical=True)
+        tex_f = lambda size, ox=0: fx.lum(stripe_tex(size, ox), 1 - 0.1 * (  # noqa: E731
+            (np.mgrid[0:size[1], 0:size[0]][0] % 3 == 1) & (np.mgrid[0:size[1], 0:size[0]][1] % 3 == 1)))
+    else:
+        tex_f = tex
+    g = c.shirt(tex_f, "short")
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    for f in "RL":
+        side = c.tex_mesh(accent)(T.size(f))
+        side.putalpha(c.mask_from(T.size(f), lambda d: d.rectangle([14, 0, 50, 128], fill=255)))
+        over(T.faces[f], side)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            d = ImageDraw.Draw(img)
+            d.rectangle([0, 36, 64, 39], fill=fx.rgba(accent))
+            d.rectangle([0, 41, 64, 46], fill=fx.rgba(fx.tone(accent, 0.85)))
+    c.hem_band(g, fx.tone(base, 0.9), 4)
+    c.v_neck(g, accent, width=30, depth=18)
+    dt.text(F, brand, (64, 64), 14, text_c, style="black", spacing=1)
+    crest = [(88, 26), (102, 26), (102, 36), (95, 42), (88, 36)]
+    lay = dt.polygon_layer(F.size, crest, accent, fx.tone(accent, 0.6))
+    ImageDraw.Draw(lay).text((95, 33), brand[0], font=dt.font(8, "black"), fill=fx.rgba(text_c), anchor="mm")
+    dt.place(F, lay, (0, 1, 0.6, 0.4))
+    dt.text(B, brand, (64, 22), 11, text_c, style="black", spacing=2)
+    dt.text(B, p.get("number", "10"), (64, 66), 52, text_c, style="black", stroke=2, stroke_color=accent,
+            shadow=(0, 2, 1.0, 0.35))
+    dt.text(F, p.get("number", "10"), (36, 34), 12, text_c, style="black")
+    c.finish(g, 0.65)
+    c.sleeve_hem(g, accent, 3)
+    return g
+
+
+def basketball_jersey(p, brand):
+    base, trim, text_c = p["base"], p["trim"], p.get("text", (255, 255, 255))
+    tex = c.tex_mesh(base)
+    g = c.shirt(tex, "none")
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    U = T.faces["U"]
+    # tank cut: deep neck scoop and armholes, straps over the shoulders
+    for face, depth in ((F, 30), (B, 16)):
+        lay = Image.new("RGBA", face.size)
+        d = ImageDraw.Draw(lay)
+        d.ellipse([28, -depth - 4, 100, depth + 4], fill=fx.rgba(trim))
+        d.rectangle([0, 0, 22, 4], fill=fx.rgba(trim))
+        d.rectangle([106, 0, 128, 4], fill=fx.rgba(trim))
+        dt.place(face, lay)
+        fx.cut(face, c.mask_from(face.size, lambda dd: dd.ellipse([32, -depth, 96, depth], fill=255)))
+        fx.cut(face, c.mask_from(face.size, lambda dd: dd.rectangle([0, 0, 18, 1], fill=255)))
+    for f in "RL":
+        img = T.faces[f]
+        lay = Image.new("RGBA", img.size)
+        ImageDraw.Draw(lay).ellipse([-6, -40, 70, 44], fill=fx.rgba(trim))
+        dt.place(img, lay)
+        fx.cut(img, c.mask_from(img.size, lambda dd: dd.ellipse([-2, -40, 66, 40], fill=255)))
+    fx.cut(U, c.mask_from(U.size, lambda dd: (dd.rectangle([0, 0, 18, 64], fill=255),
+                                              dd.rectangle([110, 0, 128, 64], fill=255),
+                                              dd.rectangle([36, 0, 92, 64], fill=255))))
+    c.hem_band(g, fx.tone(base, 0.9), 5)
+    dt.arc_text(F, brand, 64, 112, 64, 12, text_c, stroke=1, stroke_color=trim, spread=11)
+    dt.text(F, p.get("number", "23"), (64, 78), 40, text_c, style="black", stroke=2, stroke_color=trim,
+            shadow=(0, 2, 1.0, 0.35))
+    dt.text(B, brand, (64, 30), 11, text_c, style="black", spacing=2)
+    dt.text(B, p.get("number", "23"), (64, 72), 50, text_c, style="black", stroke=2, stroke_color=trim,
+            shadow=(0, 2, 1.0, 0.35))
+    c.finish(g, 0.6)
+    return g
+
+
+def layered_tee(p, brand):
+    tee, sleeve_cols = p["tee"], p["stripes"]
+    tex = c.tex_fabric(tee, 0.015)
+    stripes = c.tex_stripes(sleeve_cols, [5, 5])
+    g = c.shirt(tex, "long", sleeve_tex=stripes)
+    for limb in g.limbs:
+        fill_short = tex((limb.strip_width, 128))
+        limb.over_strip(fx.keep_rows(fill_short, 0, 46))
+    g.sleeve_end = 108
+    c.cuffs(g, sleeve_cols[0], 6, period=2)
+    c.crew_neck(g, fx.tone(tee, 0.92), width=40, depth=9)
+    c.hem_band(g, fx.tone(tee, 0.95), 4)
+    F, B = g.torso.faces["F"], g.torso.faces["B"]
+    if p.get("graphic"):
+        dt.paste_graphic(F, GRAPHICS[p["graphic"]](), (64, 56), 62)
+    dt.text(B, brand, (64, 16), 8, p.get("ink", (30, 30, 34)), style="black", spacing=1)
+    c.finish(g, 0.65)
+    for limb in g.limbs:
+        for img in c.sides(limb):
+            lay = Image.new("RGBA", img.size)
+            d = ImageDraw.Draw(lay)
+            d.rectangle([0, 41, 64, 46], fill=fx.rgba(fx.tone(tee, 0.88)))
+            d.line([(0, 46), (64, 46)], fill=fx.rgba(fx.tone(tee, 0.55)))
+            dt.place(img, lay, (0, 2, 1.2, 0.5))
+    return g
+
+
+def graphic_tee(p, brand):
+    tee = p["tee"]
+    tex = c.tiedye_tex(p["tiedye"]) if p.get("tiedye") else c.tex_fabric(tee, 0.015)
+    g = c.shirt(tex, "short")
+    F, B = g.torso.faces["F"], g.torso.faces["B"]
+    if p.get("tiedye"):
+        B.paste(fx.tiedye(B.size, p["tiedye"], center=(70, 56), seed=11), (0, 0))
+    c.crew_neck(g, fx.tone(tee, 0.9), width=40, depth=9)
+    if p.get("graphic"):
+        dt.paste_graphic(F, GRAPHICS[p["graphic"]](), (64, 60), p.get("graphic_width", 74))
+    if p.get("chest_text"):
+        dt.text(F, p["chest_text"], (64, 102), 9, p.get("ink", (255, 255, 255)), style="black", spacing=2)
+    if not p.get("tiedye"):
+        dt.text(B, brand, (64, 18), 9, p.get("ink", (255, 255, 255)), style="black", spacing=1)
+    c.finish(g, 0.6)
+    c.sleeve_hem(g, tee)
+    return g
+
+
+def puffer(p, brand):
+    base = p["base"]
+    tex = c.tex_smooth(base, 0.008, 0.05)
+    g = c.shirt(tex, 106)
+    T = g.torso
+    for f in T.sides:
+        T.faces[f].paste(c.quilt(T.faces[f], 14, 22, 0.5), (0, 0))
+    for limb in g.limbs:
+        for f in limb.sides:
+            limb.faces[f].paste(c.quilt(limb.faces[f], 2, 19, 0.5), (0, 0))
+    F, B = T.faces["F"], T.faces["B"]
+    # stand collar
+    for face, x0, x1 in ((F, 26, 102), (B, 22, 106)):
+        lay = c.tex_smooth(fx.tone(base, 1.06))(face.size)
+        lay.putalpha(c.mask_from(face.size, lambda d: d.rounded_rectangle([x0, -6, x1, 13], radius=4, fill=255)))
+        ImageDraw.Draw(lay).line([(x0 + 2, 6), (x1 - 2, 6)], fill=fx.rgba(fx.tone(base, 0.7)))
+        dt.place(face, lay, (0, 2, 1.6, 0.6))
+    fx.cut(F, c.mask_from(F.size, lambda d: d.ellipse([44, -14, 84, 6], fill=255)))
+    c.hem_band(g, p.get("trim", fx.tone(base, 0.4)), 7)
+    c.cuffs(g, p.get("trim", fx.tone(base, 0.4)), 7)
+    lay = Image.new("RGBA", F.size)
+    ImageDraw.Draw(lay).rounded_rectangle([88, 36, 108, 44], radius=2, fill=fx.rgba(p.get("patch", (245, 245, 245))))
+    ImageDraw.Draw(lay).text((98, 40), brand, font=dt.font(5, "black"), fill=fx.rgba(base), anchor="mm")
+    dt.place(F, lay, (0, 1, 0.6, 0.4))
+    c.finish(g, 0.6, folds=0.6)
+    for face in (F, B):
+        c.sheen(face, 30, 44, 0.12, 6)
+    for limb in g.limbs:
+        for f in ("F", c.OUTER[limb.name]):
+            c.sheen(limb.faces[f], 20, 30, 0.14, 4)
+    dt.zipper(F, 64, 0, 121, base, pull_y=10)
+    return g
+
+
+def biker_jacket(p, brand):
+    base, tee = p["leather"], p.get("tee", (240, 240, 238))
+    tex = c.tex_smooth(base, 0.01, 0.12)
+    g = c.shirt(tex, "long")
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    metal = p.get("metal", (200, 202, 208))
+    # tee showing in the open neck
+    tee_lay = c.tex_fabric(tee, 0.01)(F.size)
+    tee_lay.putalpha(c.mask_from(F.size, lambda d: d.polygon([(40, 0), (88, 0), (60, 40), (46, 40)], fill=255)))
+    over(F, tee_lay)
+    fx.cut(F, c.mask_from(F.size, lambda d: d.ellipse([50, -8, 78, 8], fill=255)))
+    # wide lapels
+    for pts in ([(40, 0), (24, 0), (20, 26), (28, 28), (26, 34), (48, 52), (50, 40)],
+                [(88, 0), (106, 0), (110, 22), (102, 26), (104, 32), (78, 44), (62, 40)]):
+        lay = dt.textured_polygon(F.size, pts, c.tex_smooth(fx.tone(base, 1.22), 0.008, 0.1)(F.size))
+        ImageDraw.Draw(lay).line(pts + [pts[0]], fill=fx.rgba(fx.tone(base, 0.35)), width=1)
+        ImageDraw.Draw(lay).line(pts[1:4], fill=fx.rgba(fx.tone(base, 1.6), 160), width=1)
+        dt.place(F, lay, (0, 2, 1.6, 0.6))
+    # belt at the hem
+    for img in c.sides(T):
+        lay = c.tex_smooth(fx.tone(base, 0.95), 0.01, 0.12)((img.width, 12))
+        d = ImageDraw.Draw(lay)
+        d.line([(0, 0), (img.width, 0)], fill=fx.rgba(fx.tone(base, 0.4)))
+        dt.stitch(d, [(0, 2), (img.width, 2)], fx.rgba(fx.tone(base, 1.6), 140), 2, 2)
+        dt.stitch(d, [(0, 9), (img.width, 9)], fx.rgba(fx.tone(base, 1.6), 140), 2, 2)
+        over(img, lay, (0, 114))
+    d = ImageDraw.Draw(B)
+    d.line([(0, 30), (128, 30)], fill=fx.rgba(fx.tone(base, 0.45)))
+    d.line([(36, 30), (40, 114)], fill=fx.rgba(fx.tone(base, 0.45)))
+    d.line([(92, 30), (88, 114)], fill=fx.rgba(fx.tone(base, 0.45)))
+    c.finish(g, 0.75)
+    for face in (F, B):
+        c.sheen(face, 16, 26, 0.16, 5)
+        c.sheen(face, 96, 104, 0.1, 4)
+    for limb in g.limbs:
+        for f in ("F", c.OUTER[limb.name]):
+            c.sheen(limb.faces[f], 18, 26, 0.22, 3)
+        dt.zipper(limb.faces[c.OUTER[limb.name]], 32, 86, 108, base, teeth=metal, pull_y=90)
+    # asymmetric front zip: diagonal from the shoulder, then straight down
+    d = ImageDraw.Draw(F)
+    d.line([(80, 43), (50, 54)], fill=fx.rgba(fx.tone(base, 0.6)), width=4)
+    for i in range(15):
+        t = i / 14
+        d.point([(80 - 30 * t, 43 + 11 * t + (i % 2) - 0.5)], fill=fx.rgba(metal))
+    dt.zipper(F, 50, 54, 114, base, teeth=metal, pull_y=60)
+    dt.zipper(F, 96, 54, 74, base, teeth=metal, pull_y=56)
+    lay = Image.new("RGBA", F.size)
+    ld = ImageDraw.Draw(lay)
+    ld.rectangle([12, 113, 24, 127], outline=fx.rgba(metal), width=2)
+    ld.line([(18, 114), (18, 126)], fill=fx.rgba(metal), width=1)
+    dt.place(F, lay, (0, 1, 0.6, 0.5))
+    for x, y in ((24, 28), (104, 26), (20, 120), (108, 120)):
+        dt.button(F, x, y, 1.6, metal, holes=False)
+    return g
+
+
+def field_jacket(p, brand):
+    tex = c.tex_camo(p["camo"], seed=p.get("seed", 3))
+    ink = fx.tone(p["camo"][0], 0.45)
+    g = c.shirt(tex, "long")
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    for box in ((16, 28, 46, 54), (82, 28, 112, 54), (14, 74, 48, 108), (80, 74, 114, 108)):
+        dt.pocket(F, box, p["camo"][0], stitch_color=fx.tone(p["camo"][0], 0.6), texture=tex(F.size, 7),
+                  flap=8, button_color=(60, 56, 48))
+    d = ImageDraw.Draw(F)
+    d.line([(64, 0), (64, 128)], fill=fx.rgba(ink))
+    for side in (0, 1):
+        pts = [(34, 0), (60, 0), (58, 14), (42, 20)]
+        pts = c.mirror_pts(pts) if side else pts
+        lay = dt.textured_polygon(F.size, pts, tex(F.size, 1))
+        ImageDraw.Draw(lay).line(pts + [pts[0]], fill=fx.rgba(ink))
+        dt.place(F, lay, (0, 2, 1.4, 0.5))
+    d = ImageDraw.Draw(B)
+    d.line([(0, 26), (128, 26)], fill=fx.rgba(ink))
+    for limb in g.limbs:
+        for f in limb.sides:
+            dd = ImageDraw.Draw(limb.faces[f])
+            dd.line([(0, 96), (64, 96)], fill=fx.rgba(ink))
+        outer = limb.faces[c.OUTER[limb.name]]
+        if limb.name == "left":
+            lay = Image.new("RGBA", outer.size)
+            ld = ImageDraw.Draw(lay)
+            ld.rectangle([16, 14, 48, 32], fill=fx.rgba(p.get("patch", (70, 74, 56))), outline=fx.rgba((30, 30, 26)))
+            ld.text((32, 23), brand, font=dt.font(7, "black"), fill=fx.rgba((210, 205, 180)), anchor="mm")
+            dt.place(outer, lay, (0, 1, 0.6, 0.45))
+    c.finish(g, 0.75)
+    for y in (14, 36, 58, 80, 102):
+        dt.button(F, 66, y, 2.0, (60, 56, 48))
+    return g
+
+
+def scrubs_top(p, brand):
+    base = p["base"]
+    tex = c.tex_fabric(base, 0.012)
+    g = c.shirt(tex, "short")
+    c.v_neck(g, fx.tone(base, 0.82), width=30, depth=28, band=3)
+    F = g.torso.faces["F"]
+    dt.pocket(F, (84, 40, 106, 62), base, stitch_color=fx.tone(base, 0.7), texture=tex(F.size, 2))
+    for box in ((14, 80, 40, 106), (88, 80, 114, 106)):
+        dt.pocket(F, box, base, stitch_color=fx.tone(base, 0.7), texture=tex(F.size, 4))
+    c.finish(g, 0.6)
+    c.sleeve_hem(g, base)
+    lay = Image.new("RGBA", F.size)
+    d = ImageDraw.Draw(lay)
+    d.line([(100, 38), (100, 50)], fill=fx.rgba((40, 40, 46)), width=1)
+    d.rounded_rectangle([90, 46, 108, 60], radius=1, fill=fx.rgba((250, 250, 250)), outline=fx.rgba((160, 160, 168)))
+    d.rectangle([92, 48, 97, 54], fill=fx.rgba(p.get("badge", (90, 140, 220))))
+    d.line([(99, 49), (106, 49)], fill=fx.rgba((120, 120, 130)))
+    d.line([(99, 52), (105, 52)], fill=fx.rgba((160, 160, 168)))
+    d.rectangle([90, 56, 108, 60], fill=fx.rgba(p.get("badge", (90, 140, 220))))
+    dt.place(F, lay, (0, 1, 0.6, 0.45))
+    pen = Image.new("RGBA", F.size)
+    ImageDraw.Draw(pen).rectangle([86, 34, 87, 44], fill=fx.rgba((30, 30, 36)))
+    dt.place(F, pen, (0, 1, 0.5, 0.4))
+    return g
+
+
+def cable_sweater(p, brand):
+    base = p["base"]
+    tex = c.tex_knit(base)
+    g = c.shirt(tex, "long")
+    c.crew_neck(g, fx.tone(base, 0.95), width=42, depth=10, band=4)
+    c.hem_band(g, fx.tone(base, 0.95), 10, period=2)
+    c.cuffs(g, fx.tone(base, 0.95), 10, period=2)
+    c.finish(g, 0.7)
+    return g
+
+
+def sweater_vest(p, brand):
+    shirt_c = p.get("shirt", (246, 246, 244))
+    shirt_tex = c.tex_fabric(shirt_c, 0.01)
+    g = c.shirt(shirt_tex, "long")
+    T = g.torso
+    a = p["argyle"]
+    vest = lambda size, ox=0: fx.argyle(size, a[0], a[1], a[2], offset=(ox, 0))  # noqa: E731
+    strip = vest((T.strip_width, 128))
+    strip = fx.keep_rows(strip, 0, 118)
+    T.over_strip(strip)
+    F, B = T.faces["F"], T.faces["B"]
+    # V neck on the vest showing the shirt and tie
+    vee = [(36, 0), (92, 0), (64, 50)]
+    lay = dt.textured_polygon(F.size, vee, shirt_tex(F.size))
+    over(F, lay)
+    trim = p.get("trim", fx.tone(a[0], 0.8))
+    d = ImageDraw.Draw(F)
+    d.line([(36, 0), (64, 50), (92, 0)], fill=fx.rgba(trim), width=4, joint="curve")
+    if p.get("tie"):
+        tie = Image.new("RGBA", F.size)
+        td = ImageDraw.Draw(tie)
+        td.polygon([(60, 8), (68, 8), (66, 14), (62, 14)], fill=fx.rgba(p["tie"]))
+        td.polygon([(62, 14), (66, 14), (69, 44), (64, 49), (59, 44)], fill=fx.rgba(p["tie"]))
+        dt.place(F, tie, (1, 1, 0.8, 0.5))
+    for side in (0, 1):
+        pts = [(46, 0), (62, 0), (58, 12), (48, 16)]
+        pts = c.mirror_pts(pts) if side else pts
+        lay = dt.polygon_layer(F.size, pts, shirt_c, fx.tone(shirt_c, 0.72))
+        dt.place(F, lay, (0, 1, 1.0, 0.45))
+    for img in c.sides(T):
+        dt.rib_band(img, 108, 118, trim, period=2)
+        ImageDraw.Draw(img).line([(0, 118), (img.width, 118)], fill=fx.rgba((0, 0, 0), 60))
+    lay = Image.new("RGBA", B.size)
+    ImageDraw.Draw(lay).rectangle([30, 0, 98, 5], fill=fx.rgba(shirt_c))
+    dt.place(B, lay)
+    for limb in g.limbs:
+        for f in limb.sides:
+            ImageDraw.Draw(limb.faces[f]).line([(0, 98), (64, 98)], fill=fx.rgba(fx.tone(shirt_c, 0.7)))
+    c.finish(g, 0.7)
+    for limb in g.limbs:
+        dt.button(limb.faces[c.OUTER[limb.name]], 32, 103, 1.5, (230, 230, 230), holes=False)
+    return g
+
+
+def mesh_top(p, brand):
+    base = p["base"]
+    tex = c.tex_smooth(base, 0.01, 0.06)
+    net = lambda size, ox=0: fx.fishnet(size, p.get("net", (18, 18, 20)), 7, (ox, 0))  # noqa: E731
+    g = c.shirt(tex, "long", sleeve_tex=net)
+    T = g.torso
+    F, B = T.faces["F"], T.faces["B"]
+    for face, depth in ((F, 16), (B, 6)):
+        fx.cut(face, c.mask_from(face.size, lambda d: d.rectangle([34, 0, 94, depth], fill=255)))
+        d = ImageDraw.Draw(face)
+        d.line([(34, depth + 1), (94, depth + 1)], fill=fx.rgba(fx.tone(base, 1.6)), width=1)
+    # lace-up front
+    d = ImageDraw.Draw(F)
+    for i, y in enumerate(range(30, 108, 10)):
+        d.line([(58, y), (70, y + 8)], fill=fx.rgba(p.get("lace", (180, 30, 50))), width=1)
+        d.line([(70, y), (58, y + 8)], fill=fx.rgba(p.get("lace", (180, 30, 50))), width=1)
+    for y in range(30, 116, 10):
+        dt.button(F, 57, y, 1.2, (200, 200, 205), holes=False)
+        dt.button(F, 71, y, 1.2, (200, 200, 205), holes=False)
+    for img in c.sides(T):
+        ImageDraw.Draw(img).line([(0, 124), (img.width, 124)], fill=fx.rgba(fx.tone(base, 1.5)))
+    dt.text(B, brand, (64, 40), 9, p.get("ink", (200, 30, 50)), style="black", spacing=2)
+    c.finish(g, 0.55)
+    for face in (F, B):
+        c.sheen(face, 20, 30, 0.08, 5)
+    # chain necklace with a crescent pendant
+    lay = Image.new("RGBA", F.size)
+    ld = ImageDraw.Draw(lay)
+    pts = dt.arc_points(64, 0, 24, 30, 15, 165)
+    for i in range(0, len(pts) - 1, 2):
+        ld.line([pts[i], pts[i + 1]], fill=fx.rgba((215, 218, 224)), width=1)
+    ld.ellipse([59, 28, 69, 38], fill=fx.rgba((215, 218, 224)))
+    ld.ellipse([62, 27, 71, 36], fill=(0, 0, 0, 0))
+    dt.place(F, lay, (0, 1, 0.6, 0.6))
+    return g
